@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useCartStore } from '../store';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductGrid() {
   const [products, setProducts] = useState([]);
@@ -9,6 +10,7 @@ export default function ProductGrid() {
   const { addToCart } = useCartStore();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
+  const { i18n, t } = useTranslation();
 
   useEffect(() => {
     fetchCategories();
@@ -20,7 +22,13 @@ export default function ProductGrid() {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/categories`
       );
-      setCategories([{ _id: 'all', name: 'All Products', slug: 'all' }, ...response.data.data]);
+      const allProductsCategory = {
+        _id: 'all',
+        name_th: 'สินค้าทั้งหมด',
+        name_en: 'All Products',
+        slug: 'all'
+      };
+      setCategories([allProductsCategory, ...response.data.data]);
     } catch (err) {
       console.error('Error fetching categories:', err);
     }
@@ -45,10 +53,22 @@ export default function ProductGrid() {
     }
   };
 
+  const getProductName = (product) => {
+    return i18n.language === 'th' ? product.name_th : product.name_en;
+  };
+
+  const getProductDescription = (product) => {
+    return i18n.language === 'th' ? product.description_th : product.description_en;
+  };
+
+  const getCategoryName = (category) => {
+    return i18n.language === 'th' ? category.name_th : category.name_en;
+  };
+
   const handleAddToCart = (product) => {
     addToCart(product, 1);
     // Show toast notification
-    alert(`${product.name} added to cart!`);
+    alert(`${getProductName(product)} ${t('cart.addedSuccess', 'added to cart!')}`);
   };
 
   if (error && products.length === 0) {
@@ -65,7 +85,9 @@ export default function ProductGrid() {
     <div className="max-w-7xl mx-auto px-4 py-12">
       {/* Category Filter */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Filter by Category</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          {t('products.filterByCategory', 'Filter by Category')}
+        </h2>
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
@@ -77,7 +99,7 @@ export default function ProductGrid() {
                   : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
               }`}
             >
-              {cat.name}
+              {getCategoryName(cat)}
             </button>
           ))}
         </div>
@@ -90,12 +112,16 @@ export default function ProductGrid() {
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products found in this category</p>
+          <p className="text-gray-500 text-lg">
+            {t('products.noProductsFound', 'No products found in this category')}
+          </p>
         </div>
       ) : (
         <>
           {/* Results Count */}
-          <p className="text-gray-600 mb-4">Showing {products.length} products</p>
+          <p className="text-gray-600 mb-4">
+            {t('products.showing', 'Showing')} {products.length} {t('products.products', 'products')}
+          </p>
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -134,11 +160,11 @@ export default function ProductGrid() {
                 {/* Product Info */}
                 <div className="p-4 flex flex-col h-full">
                   <h3 className="font-bold text-gray-800 mb-2 line-clamp-2 flex-grow">
-                    {product.name}
+                    {getProductName(product)}
                   </h3>
 
                   <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                    {product.description}
+                    {getProductDescription(product)}
                   </p>
 
                   {/* Rating */}
