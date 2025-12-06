@@ -28,6 +28,11 @@ export default function Navbar() {
             <Link to="/cart" className="text-gray-700 hover:text-primary">
               {t('common.cart')}
             </Link>
+            {isLoggedIn && (
+              <Link to="/my-coupons" className="text-gray-700 hover:text-primary">
+                🎟️ {t('coupons.coupons')}
+              </Link>
+            )}
           </div>
           <div className="flex gap-4 items-center">
             {isLoggedIn ? (

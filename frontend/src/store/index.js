@@ -25,6 +25,8 @@ export const useAuthStore = create((set) => ({
 
 export const useCartStore = create((set) => ({
   items: JSON.parse(localStorage.getItem('cart')) || [],
+  coupon: JSON.parse(localStorage.getItem('appliedCoupon')) || null,
+  discountAmount: parseFloat(localStorage.getItem('discountAmount')) || 0,
 
   addToCart: (product, quantity = 1) => {
     set((state) => {
@@ -69,14 +71,35 @@ export const useCartStore = create((set) => ({
     set({ items: [] });
   },
 
+  applyCoupon: (coupon, discountAmount) => {
+    localStorage.setItem('appliedCoupon', JSON.stringify(coupon));
+    localStorage.setItem('discountAmount', discountAmount.toString());
+    set({ coupon, discountAmount });
+  },
+
+  removeCoupon: () => {
+    localStorage.removeItem('appliedCoupon');
+    localStorage.removeItem('discountAmount');
+    set({ coupon: null, discountAmount: 0 });
+  },
+
   getTotalPrice: () => {
     const state = useCartStore.getState();
-    return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
+    return state.items.reduce((total, item) => {
+      const itemPrice = item.finalPrice || item.price;
+      return total + itemPrice * item.quantity;
+    }, 0);
   },
 
   getTotalQuantity: () => {
     const state = useCartStore.getState();
     return state.items.reduce((total, item) => total + item.quantity, 0);
+  },
+
+  getFinalTotal: () => {
+    const state = useCartStore.getState();
+    const subtotal = state.getTotalPrice();
+    return Math.max(0, subtotal - state.discountAmount);
   },
 }));
 

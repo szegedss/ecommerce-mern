@@ -12,7 +12,6 @@ const orderSchema = new mongoose.Schema(
         productId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Product',
-          required: true,
         },
         name: String,
         price: Number,
@@ -23,8 +22,39 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    totalAmount: {
+    shippingAddress: {
+      firstName: String,
+      lastName: String,
+      email: String,
+      phone: String,
+      address: String,
+      city: String,
+      postalCode: String,
+      country: String,
+    },
+    subtotal: {
       type: Number,
+      required: true,
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    couponCode: String,
+    tax: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    total: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['credit-card', 'bank-transfer', 'cash-on-delivery'],
       required: true,
     },
     status: {
@@ -32,24 +62,25 @@ const orderSchema = new mongoose.Schema(
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
-    shippingAddress: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String,
-    },
-    paymentMethod: {
-      type: String,
-      default: 'credit_card',
-    },
-    paymentStatus: {
-      type: String,
-      enum: ['pending', 'completed', 'failed'],
-      default: 'pending',
-    },
+    notes: String,
   },
   { timestamps: true }
 );
+
+// Method to calculate totals
+orderSchema.methods.calculateTotal = function () {
+  this.total = this.subtotal - this.discount + this.tax;
+  return this.total;
+};
+
+// Method to update status
+orderSchema.methods.updateStatus = function (newStatus) {
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  if (validStatuses.includes(newStatus)) {
+    this.status = newStatus;
+    return true;
+  }
+  return false;
+};
 
 module.exports = mongoose.model('Order', orderSchema);

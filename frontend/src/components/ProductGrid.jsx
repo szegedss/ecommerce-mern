@@ -43,7 +43,9 @@ export default function ProductGrid() {
           : `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/products?category=${selectedCategory}`;
 
       const response = await axios.get(url);
-      setProducts(response.data.data || response.data);
+      const productsData = response.data.data || response.data;
+      console.log('Fetched products:', productsData); // Debug log
+      setProducts(productsData);
       setError(null);
     } catch (err) {
       setError('Failed to load products');
@@ -69,6 +71,12 @@ export default function ProductGrid() {
     addToCart(product, 1);
     // Show toast notification
     alert(`${getProductName(product)} ${t('cart.addedSuccess', 'added to cart!')}`);
+  };
+
+  const handleBuyNow = (product) => {
+    addToCart(product, 1);
+    // Redirect to cart/checkout
+    window.location.href = '/cart';
   };
 
   if (error && products.length === 0) {
@@ -125,13 +133,28 @@ export default function ProductGrid() {
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.map((product) => {
+              // Check if discount is active
+              const hasActiveDiscount = product.discount && 
+                product.discount.type !== 'none' && 
+                product.discount.startDate && 
+                product.discount.endDate &&
+                new Date(product.discount.startDate) <= new Date() &&
+                new Date(product.discount.endDate) >= new Date();
+
+              const discountedPrice = hasActiveDiscount ? 
+                (product.price - (product.discount.type === 'percentage' 
+                  ? (product.price * product.discount.value / 100) 
+                  : product.discount.value)) : 
+                product.price;
+
+              return (
               <div
                 key={product._id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col min-h-[600px]"
               >
                 {/* Product Image */}
-                <div className="relative aspect-square bg-gray-100 overflow-hidden group">
+                <div className="relative aspect-square bg-gray-100 overflow-hidden group flex-shrink-0">
                   {product.image ? (
                     <img
                       src={product.image}
@@ -158,60 +181,97 @@ export default function ProductGrid() {
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4 flex flex-col h-full">
-                  <h3 className="font-bold text-gray-800 mb-2 line-clamp-2 flex-grow">
-                    {getProductName(product)}
-                  </h3>
+                <div className="p-4 flex flex-col flex-grow justify-between">
+                  <div>
+                    <h3 className="font-bold text-gray-800 mb-2 line-clamp-2">
+                      {getProductName(product)}
+                    </h3>
 
-                  <p className="text-gray-600 text-xs mb-3 line-clamp-2">
-                    {getProductDescription(product)}
-                  </p>
+                    <p className="text-gray-600 text-xs mb-3 line-clamp-2">
+                      {getProductDescription(product)}
+                    </p>
 
-                  {/* Rating */}
-                  {product.rating && (
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <span
-                            key={i}
-                            className={
-                              i < Math.round(product.rating)
-                                ? 'text-yellow-400'
-                                : 'text-gray-300'
-                            }
-                          >
-                            ⭐
-                          </span>
-                        ))}
+                    {/* Rating */}
+                    {product.rating && (
+                      <div className="flex items-center gap-1 mb-3">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span
+                              key={i}
+                              className={
+                                i < Math.round(product.rating)
+                                  ? 'text-yellow-400'
+                                  : 'text-gray-300'
+                              }
+                            >
+                              ⭐
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-600 ml-1">
+                          ({product.reviews || 0})
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-600 ml-1">
-                        ({product.reviews || 0})
-                      </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {/* Price and Button */}
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                    <div>
-                      <span className="text-2xl font-bold text-orange-600">
-                        ${product.price.toFixed(2)}
-                      </span>
+                  <div className="flex flex-col gap-2 pt-3 border-t border-gray-200">
+                    {/* Pricing */}
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      {hasActiveDiscount ? (
+                        <>
+                          <span className="text-lg font-bold text-red-600">
+                            ฿{discountedPrice.toFixed(0)}
+                          </span>
+                          <span className="text-sm text-gray-400 line-through">
+                            ฿{product.price.toFixed(0)}
+                          </span>
+                          <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-semibold">
+                            {product.discount.type === 'percentage' 
+                              ? `-${product.discount.value}%` 
+                              : `-฿${product.discount.value}`}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold text-orange-600">
+                          ฿{(product.price || 0).toFixed(0)}
+                        </span>
+                      )}
                     </div>
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={product.stock === 0}
-                      className={`px-3 py-2 rounded font-semibold text-white transition ${
-                        product.stock > 0
-                          ? 'bg-orange-500 hover:bg-orange-600 active:scale-95'
-                          : 'bg-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      {product.stock > 0 ? '🛒 Add' : 'Out'}
-                    </button>
+
+                    {/* Add to Cart Button */}
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock === 0}
+                        className={`flex-1 px-3 py-2 rounded font-semibold text-white transition ${
+                          product.stock > 0
+                            ? 'bg-orange-500 hover:bg-orange-600 active:scale-95'
+                            : 'bg-gray-400 cursor-not-allowed'
+                        }`}
+                        title={t('cart.addToCart', 'Add to Cart')}
+                      >
+                        🛒
+                      </button>
+                      <button
+                        onClick={() => handleBuyNow(product)}
+                        disabled={product.stock === 0}
+                        className={`flex-1 px-3 py-2 rounded font-semibold text-white transition ${
+                          product.stock > 0
+                            ? 'bg-green-500 hover:bg-green-600 active:scale-95'
+                            : 'bg-gray-400 cursor-not-allowed'
+                        }`}
+                        title={t('cart.buyNow', 'Buy Now')}
+                      >
+                        💳
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
