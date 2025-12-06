@@ -4,10 +4,10 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_fake_
 const Order = require('../models/Order');
 const { protect } = require('../middleware/auth');
 
-// Process Stripe payment
+// POST /api/payments/stripe - Process Stripe payment
 router.post('/stripe', protect, async (req, res) => {
   try {
-    const { amount, cardData } = req.body;
+    const { amount, paymentMethodId, cardholderName } = req.body;
 
     if (!amount || amount <= 0) {
       return res.status(400).json({
@@ -16,19 +16,22 @@ router.post('/stripe', protect, async (req, res) => {
       });
     }
 
-    // In production, use Stripe's Payment Intents or Tokens
-    // For now, simulate payment processing
+    if (!paymentMethodId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment method is required',
+      });
+    }
+
+    // ✅ SECURITY: In production, use Stripe's Payment Intents API
+    // This ensures card data NEVER comes to your backend
+    // For now, simulate payment processing with token
     const charge = {
       id: `ch_${Math.random().toString(36).substring(7)}`,
       amount,
       currency: 'thb',
       status: 'succeeded',
-      payment_method: {
-        card: {
-          last4: cardData.cardNumber?.slice(-4) || '0000',
-          brand: 'visa',
-        },
-      },
+      payment_method: paymentMethodId,
     };
 
     res.json({
@@ -36,8 +39,9 @@ router.post('/stripe', protect, async (req, res) => {
       data: {
         transactionId: charge.id,
         status: charge.status,
-        amount: amount / 100,
+        amount: amount,
         method: 'stripe',
+        timestamp: new Date()
       },
     });
   } catch (error) {
