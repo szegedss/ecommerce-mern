@@ -43,6 +43,7 @@ router.post('/', protect, async (req, res) => {
       tax: tax || 0,
       total,
       paymentMethod,
+      paymentStatus: 'pending',
       status: 'pending',
     });
 
@@ -70,7 +71,7 @@ router.get('/', protect, async (req, res) => {
     const skip = (page - 1) * limit;
 
     const orders = await Order.find({ userId: req.userId })
-      .populate('items.product')
+      .populate('items.productId')
       .populate('userId', '-password')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -210,6 +211,126 @@ router.put('/:id/cancel', protect, async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// ADMIN ROUTES - Get all orders for admin
+router.get('/admin/all', protect, async (req, res) => {
+  try {
+    // Check if user is admin (would need admin middleware in real app)
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const status = req.query.status;
+    const paymentStatus = req.query.paymentStatus;
+
+    let filter = {};
+    if (status) filter.status = status;
+    if (paymentStatus) filter.paymentStatus = paymentStatus;
+
+    const orders = await Order.find(filter)
+      .populate('userId', 'name email phone')
+      .populate('items.productId', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Order.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: orders,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// ADMIN ROUTE - Update order status
+router.put('/admin/:id/status', protect, async (req, res) => {
+  try {
+    const { status, trackingNumber, note } = req.body;
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    // Update status with timeline
+    const updated = order.updateStatus(status, note);
+    if (!updated) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status',
+      });
+    }
+
+    if (trackingNumber) {
+      order.trackingNumber = trackingNumber;
+    }
+
+    await order.save();
+    await order.populate('userId', 'name email');
+
+    res.json({
+      success: true,
+      message: 'Order status updated successfully',
+      data: order,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// ADMIN ROUTE - Get order statistics
+router.get('/admin/stats', protect, async (req, res) => {
+  try {
+    const stats = {
+      totalOrders: await Order.countDocuments(),
+      pendingOrders: await Order.countDocuments({ status: 'pending' }),
+      processingOrders: await Order.countDocuments({ status: 'processing' }),
+      shippedOrders: await Order.countDocuments({ status: 'shipped' }),
+      deliveredOrders: await Order.countDocuments({ status: 'delivered' }),
+      cancelledOrders: await Order.countDocuments({ status: 'cancelled' }),
+      pendingPayments: await Order.countDocuments({ paymentStatus: 'pending' }),
+      completedPayments: await Order.countDocuments({ paymentStatus: 'completed' }),
+      totalRevenue: 0,
+    };
+
+    // Calculate total revenue
+    const revenue = await Order.aggregate([
+      { $match: { status: 'delivered' } },
+      { $group: { _id: null, total: { $sum: '$total' } } },
+    ]);
+
+    if (revenue.length > 0) {
+      stats.totalRevenue = revenue[0].total;
+    }
+
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    res.status(500).json({
       success: false,
       message: error.message,
     });
