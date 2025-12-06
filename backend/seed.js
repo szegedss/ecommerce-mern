@@ -69,7 +69,11 @@ const products = [
     name_en: 'Premium Dog Food - Chicken',
     description_th: 'อาหารสุนัขคุณภาพสูงที่มีเนื้อไก่แท้ เหมาะสำหรับสุนัขทุกสายพันธุ์',
     description_en: 'High-quality dog food with real chicken, perfect for all breeds',
-    price: 29.99,
+    price: 990,
+    discount: {
+      type: 'none',
+      value: 0,
+    },
     category: 'dogs',
     image: 'https://images.unsplash.com/photo-1585518419759-66ed3f93a1dc?w=500&h=500&fit=crop',
     stock: 50,
@@ -81,7 +85,7 @@ const products = [
     name_en: 'Dog Chew Toys Variety Pack',
     description_th: 'ชุด 5 ของเล่นสุนัขทนทาน สำหรับการเคี้ยวและเล่น',
     description_en: 'Set of 5 durable dog toys for chewing and playing',
-    price: 19.99,
+    price: 660,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1568152950566-c1bf43f94db0?w=500&h=500&fit=crop',
     stock: 75,
@@ -93,7 +97,7 @@ const products = [
     name_en: 'Dog Bed - Orthopedic',
     description_th: 'เตียงสุนัขออร์โธปีดิกสำหรับสุนัขพันธุ์ใหญ่',
     description_en: 'Comfortable orthopedic dog bed for larger breeds',
-    price: 89.99,
+    price: 2970,
     category: 'dogs',
     image: 'https://images.unsplash.com/photo-1615751072497-5f5169febe17?w=500&h=500&fit=crop',
     stock: 20,
@@ -105,7 +109,7 @@ const products = [
     name_en: 'Dog Collar & Leash Set',
     description_th: 'ปลอกคอและสายจูงไนลอนทนทาน พร้อมแถบสะท้อนแสง',
     description_en: 'Durable nylon collar and leash with reflective strips',
-    price: 24.99,
+    price: 825,
     category: 'dogs',
     image: 'https://images.unsplash.com/photo-1617885868960-b944b2dc17b0?w=500&h=500&fit=crop',
     stock: 40,
@@ -117,7 +121,7 @@ const products = [
     name_en: 'Dog Grooming Kit',
     description_th: 'ชุดบำรุงรักษาสมบูรณ์พร้อมแปรง กรรไกรตัดเล็บ และแชมพู',
     description_en: 'Complete grooming kit with brush, nail clipper, and shampoo',
-    price: 44.99,
+    price: 1485,
     category: 'dogs',
     image: 'https://images.unsplash.com/photo-1537151608828-8661a20bfd11?w=500&h=500&fit=crop',
     stock: 30,
@@ -131,7 +135,7 @@ const products = [
     name_en: 'Premium Cat Food - Salmon',
     description_th: 'อาหารแมวที่มีประโยชน์พร้อมปลาแซลมอนแท้และน้ำมันปลา',
     description_en: 'Nutritious cat food with real salmon and fish oil',
-    price: 24.99,
+    price: 825,
     category: 'pet-food',
     image: 'https://images.unsplash.com/photo-1563037404-61f69b0ae0f0?w=500&h=500&fit=crop',
     stock: 60,
@@ -143,7 +147,7 @@ const products = [
     name_en: 'Cat Scratching Post',
     description_th: 'เสาขูดสูงพร้อมหลายระดับและที่ซ่อนตัว',
     description_en: 'Tall scratching post with multiple levels and hiding spots',
-    price: 59.99,
+    price: 1980,
     category: 'cats',
     image: 'https://images.unsplash.com/photo-1546527868-ccfd7ee93dca?w=500&h=500&fit=crop',
     stock: 15,
@@ -155,7 +159,7 @@ const products = [
     name_en: 'Interactive Cat Toys Bundle',
     description_th: 'ชุด 8 ของเล่นแบบโต้ตอบ รวมถึงขน ลูก และหนูของเล่น',
     description_en: 'Set of 8 interactive toys including feathers, balls, and mice',
-    price: 16.99,
+    price: 561,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1514888286974-6c03bf1a7dba?w=500&h=500&fit=crop',
     stock: 85,
@@ -167,7 +171,7 @@ const products = [
     name_en: 'Cat Bed - Plush',
     description_th: 'เตียงแมวนุ่มหนากำมะหลากเหมาะสำหรับการนอนหลับและพักผ่อน',
     description_en: 'Soft plush cat bed perfect for napping and relaxing',
-    price: 34.99,
+    price: 1155,
     category: 'cats',
     image: 'https://images.unsplash.com/photo-1617880511169-35a8a5b1b0e3?w=500&h=500&fit=crop',
     stock: 45,
@@ -179,7 +183,7 @@ const products = [
     name_en: 'Cat Litter Box - Enclosed',
     description_th: 'กล่องทรายแบบปิดสำหรับความเป็นส่วนตัว พร้อมตัวกรองคาร์บอน',
     description_en: 'Privacy-focused enclosed litter box with carbon filter',
-    price: 54.99,
+    price: 1815,
     category: 'cats',
     image: 'https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=500&h=500&fit=crop',
     stock: 25,
@@ -193,7 +197,7 @@ const products = [
     name_en: 'Rabbit Hay - Timothy Grass',
     description_th: 'หญ้า Timothy ธรรมชาติ เป็นสิ่งจำเป็นในอาหารกระต่าย',
     description_en: 'Natural Timothy grass hay, essential for rabbit diet',
-    price: 14.99,
+    price: 495,
     category: 'pet-food',
     image: 'https://images.unsplash.com/photo-1585518419759-66ed3f93a1dc?w=500&h=500&fit=crop',
     stock: 100,
@@ -205,7 +209,7 @@ const products = [
     name_en: 'Hamster Wheel - Silent',
     description_th: 'ล้อแฮมสเตอร์ขนาดใหญ่ที่ทำงานอย่างเงียบ',
     description_en: 'Large silent hamster wheel with smooth operation',
-    price: 22.99,
+    price: 759,
     category: 'small-animals',
     image: 'https://images.unsplash.com/photo-1544899716781-dd0b26f9c183?w=500&h=500&fit=crop',
     stock: 35,
@@ -217,7 +221,7 @@ const products = [
     name_en: 'Rabbit Cage Setup',
     description_th: 'ชุดกรงกระต่ายสมบูรณ์พร้อมอุปกรณ์เสริมและที่ซ่อนตัว',
     description_en: 'Complete rabbit cage with accessories and hideaway',
-    price: 79.99,
+    price: 2640,
     category: 'small-animals',
     image: 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=500&h=500&fit=crop',
     stock: 12,
@@ -229,7 +233,7 @@ const products = [
     name_en: 'Small Pet Treats Mix',
     description_th: 'ชุดขนมสำหรับกระต่าย แฮมสเตอร์ และหนู',
     description_en: 'Variety pack of treats for rabbits, hamsters, and guinea pigs',
-    price: 11.99,
+    price: 396,
     category: 'pet-food',
     image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde0b?w=500&h=500&fit=crop',
     stock: 70,
@@ -243,7 +247,7 @@ const products = [
     name_en: 'Premium Bird Food Mix',
     description_th: 'ส่วนผสมเมล็ดที่มีประโยชน์สำหรับนกแก้ว นกกรงขัง และนกหว่าน',
     description_en: 'Nutritious seed mix for parrots, canaries, and finches',
-    price: 18.99,
+    price: 627,
     category: 'pet-food',
     image: 'https://images.unsplash.com/photo-1585518419759-66ed3f93a1dc?w=500&h=500&fit=crop',
     stock: 55,
@@ -255,7 +259,7 @@ const products = [
     name_en: 'Bird Cage - Large',
     description_th: 'กรงนกที่กว้างขวางเหมาะสำหรับนกขนาดกลางถึงใหญ่',
     description_en: 'Spacious bird cage suitable for medium to large birds',
-    price: 129.99,
+    price: 4290,
     category: 'birds',
     image: 'https://images.unsplash.com/photo-1444464666175-1642a527f621?w=500&h=500&fit=crop',
     stock: 8,
@@ -267,7 +271,7 @@ const products = [
     name_en: 'Bird Perches & Toys Set',
     description_th: 'ชุดของเล่นไม้สีสดใสและเสาปักสำหรับการอุดหนุนของนก',
     description_en: 'Set of colorful wooden perches and toys for bird enrichment',
-    price: 26.99,
+    price: 890,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1558036117-15693327271d?w=500&h=500&fit=crop',
     stock: 40,
@@ -281,7 +285,7 @@ const products = [
     name_en: 'Tennis Ball Pack - 3pc',
     description_th: 'ลูกเทนนิสทนทาน เหมาะสำหรับเกมว่าง',
     description_en: 'Durable tennis balls perfect for fetch games',
-    price: 8.99,
+    price: 297,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1617887754475-37f8e21b5555?w=500&h=500&fit=crop',
     stock: 120,
@@ -293,7 +297,7 @@ const products = [
     name_en: 'Rope Tug Toy - Multicolor',
     description_th: 'ของเล่นเชือกทอมีสีหลากหลาย เหมาะสำหรับเกมเชือกที่ดึง',
     description_en: 'Braided rope toy perfect for tug-of-war games',
-    price: 9.99,
+    price: 330,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1616991337384-d5d2f7bc91c6?w=500&h=500&fit=crop',
     stock: 65,
@@ -305,12 +309,79 @@ const products = [
     name_en: 'Squeaky Toy Collection',
     description_th: 'ชุด 6 ของเล่นกรีดร้องต่างๆ สำหรับสุนัขและแมว',
     description_en: 'Set of 6 various squeaky toys for dogs and cats',
-    price: 12.99,
+    price: 429,
     category: 'toys-games',
     image: 'https://images.unsplash.com/photo-1595433707802-6b2626ef1c91?w=500&h=500&fit=crop',
     stock: 50,
     rating: 4.5,
     reviews: 32,
+  },
+];
+
+const coupons = [
+  {
+    code_th: 'ลดราคา 10% ทั่วไป',
+    code_en: 'General 10% Off',
+    uniqueCode: 'SAVE10',
+    description_th: 'ลดราคา 10% สำหรับสินค้าทั้งหมด',
+    description_en: '10% off on all products',
+    discountType: 'percentage',
+    discountValue: 10,
+    minPurchaseAmount: 0,
+    maxDiscountAmount: null,
+    startDate: new Date('2025-12-01'),
+    expiryDate: new Date('2025-12-31'),
+    maxUsagePerUser: 5,
+    totalUsageLimit: 100,
+    isActive: true,
+  },
+  {
+    code_th: 'ลดราคา 20% สินค้าหมวดอาหาร',
+    code_en: 'Pet Food 20% Off',
+    uniqueCode: 'FOOD20',
+    description_th: 'ลดราคา 20% สำหรับอาหารสัตว์เลี้ยง',
+    description_en: '20% off on pet food products',
+    discountType: 'percentage',
+    discountValue: 20,
+    minPurchaseAmount: 990,
+    maxDiscountAmount: 1650,
+    startDate: new Date('2025-12-01'),
+    expiryDate: new Date('2025-12-31'),
+    maxUsagePerUser: 3,
+    totalUsageLimit: 50,
+    isActive: true,
+  },
+  {
+    code_th: 'ลด 165 บาท สำหรับซื้อ 1650 ขึ้นไป',
+    code_en: 'Spend 1650฿ Get 165฿ Off',
+    uniqueCode: 'SAVE5OVER50',
+    description_th: 'ลด 165 บาท เมื่อซื้อ 1650 บาทขึ้นไป',
+    description_en: '165฿ off when you spend 1650฿ or more',
+    discountType: 'fixed',
+    discountValue: 165,
+    minPurchaseAmount: 1650,
+    maxDiscountAmount: null,
+    startDate: new Date('2025-12-01'),
+    expiryDate: new Date('2026-01-31'),
+    maxUsagePerUser: 10,
+    totalUsageLimit: 200,
+    isActive: true,
+  },
+  {
+    code_th: 'ลดราคา 15% ของเล่นและเกม',
+    code_en: 'Toys & Games 15% Off',
+    uniqueCode: 'TOYS15',
+    description_th: 'ลดราคา 15% สำหรับของเล่นและเกม',
+    description_en: '15% off on toys and games',
+    discountType: 'percentage',
+    discountValue: 15,
+    minPurchaseAmount: 0,
+    maxDiscountAmount: 990,
+    startDate: new Date('2025-12-01'),
+    expiryDate: new Date('2025-12-15'),
+    maxUsagePerUser: 2,
+    totalUsageLimit: 75,
+    isActive: true,
   },
 ];
 
@@ -322,7 +393,16 @@ async function seedDatabase() {
     // Clear existing data
     await Category.deleteMany({});
     await Product.deleteMany({});
+    const Coupon = require('./src/models/Coupon');
+    const User = require('./src/models/User');
+    await Coupon.deleteMany({});
     console.log('Cleared existing data');
+
+    // Get admin user for creating coupons
+    let adminUser = await User.findOne({ role: 'admin' });
+    if (!adminUser) {
+      console.log('Admin user not found. Please create admin user first with: node create-admin.js');
+    }
 
     // Create categories
     const createdCategories = await Category.insertMany(categories);
@@ -343,6 +423,16 @@ async function seedDatabase() {
     const createdProducts = await Product.insertMany(productsWithCategoryIds);
     console.log(`Created ${createdProducts.length} products`);
 
+    // Create coupons
+    if (adminUser) {
+      const couponsWithAdmin = coupons.map((coupon) => ({
+        ...coupon,
+        createdBy: adminUser._id,
+      }));
+      const createdCoupons = await Coupon.insertMany(couponsWithAdmin);
+      console.log(`Created ${createdCoupons.length} coupons`);
+    }
+
     console.log('\n✅ Database seeded successfully!');
     console.log(`\nCategories created:`);
     createdCategories.forEach((cat) => {
@@ -351,6 +441,13 @@ async function seedDatabase() {
 
     console.log(`\nProducts created: ${createdProducts.length} items`);
     console.log(`Total stock: ${createdProducts.reduce((sum, p) => sum + p.stock, 0)} items`);
+
+    if (adminUser) {
+      console.log('\nAvailable coupon codes:');
+      coupons.forEach((coupon) => {
+        console.log(`  - ${coupon.uniqueCode}: ${coupon.code_en} (${coupon.discountValue}${coupon.discountType === 'percentage' ? '%' : '฿'})`);
+      });
+    }
 
     process.exit(0);
   } catch (error) {

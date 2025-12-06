@@ -26,10 +26,50 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a product description in English'],
     },
+    // Base price
     price: {
       type: Number,
       required: [true, 'Please provide a product price'],
       min: [0, 'Price cannot be negative'],
+    },
+    // Discount settings
+    discount: {
+      // Type of discount: 'percentage' or 'fixed'
+      type: {
+        type: String,
+        enum: ['percentage', 'fixed', 'none'],
+        default: 'none',
+      },
+      // Discount value (percentage 0-100 or fixed amount)
+      value: {
+        type: Number,
+        default: 0,
+        min: 0,
+        validate: {
+          validator: function (value) {
+            if (this.discount.type === 'percentage') {
+              return value >= 0 && value <= 100;
+            }
+            return true;
+          },
+          message: 'For percentage discount, value must be between 0-100',
+        },
+      },
+      // Discount start date
+      startDate: {
+        type: Date,
+        default: null,
+      },
+      // Discount end date
+      endDate: {
+        type: Date,
+        default: null,
+      },
+    },
+    // Calculated final price (will be updated by middleware)
+    finalPrice: {
+      type: Number,
+      default: null,
     },
     category: {
       type: String,
@@ -58,5 +98,49 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Pre-save middleware to calculate final price
+productSchema.pre('save', function (next) {
+  this.finalPrice = this.calculateFinalPrice();
+  next();
+});
+
+// Method to calculate final price based on discount
+productSchema.methods.calculateFinalPrice = function () {
+  let finalPrice = this.price;
+
+  // Check if discount is active
+  const now = new Date();
+  if (
+    this.discount.type !== 'none' &&
+    this.discount.startDate &&
+    this.discount.endDate &&
+    now >= this.discount.startDate &&
+    now <= this.discount.endDate
+  ) {
+    if (this.discount.type === 'percentage') {
+      finalPrice = this.price * (1 - this.discount.value / 100);
+    } else if (this.discount.type === 'fixed') {
+      finalPrice = Math.max(0, this.price - this.discount.value);
+    }
+  }
+
+  return Math.round(finalPrice * 100) / 100; // Round to 2 decimal places
+};
+
+// Method to get discount amount
+productSchema.methods.getDiscountAmount = function () {
+  const finalPrice = this.calculateFinalPrice();
+  return Math.round((this.price - finalPrice) * 100) / 100;
+};
+
+// Method to get discount percentage
+productSchema.methods.getDiscountPercentage = function () {
+  const finalPrice = this.calculateFinalPrice();
+  if (this.price === 0) return 0;
+  return Math.round(((this.price - finalPrice) / this.price) * 100);
+};
+
+module.exports = mongoose.model('Product', productSchema);
 
 module.exports = mongoose.model('Product', productSchema);

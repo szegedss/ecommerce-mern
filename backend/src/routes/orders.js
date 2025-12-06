@@ -7,7 +7,7 @@ const { protect } = require('../middleware/auth');
 // Create order
 router.post('/', protect, async (req, res) => {
   try {
-    const { items, totalAmount, shippingAddress, paymentMethod, paymentStatus, status } = req.body;
+    const { items, shippingAddress, subtotal, discount, couponCode, tax, total, paymentMethod } = req.body;
 
     // Validate items
     if (!items || items.length === 0) {
@@ -17,49 +17,37 @@ router.post('/', protect, async (req, res) => {
       });
     }
 
-    // Check product stock and populate product details
-    const populatedItems = [];
-    for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: `Product ${item.product} not found`,
-        });
-      }
-
-      if (product.stock < item.quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Not enough stock for ${product.name}`,
-        });
-      }
-
-      populatedItems.push({
-        product: item.product,
-        quantity: item.quantity,
-        price: item.price,
+    // Validate shipping address
+    if (!shippingAddress || !shippingAddress.firstName || !shippingAddress.address) {
+      return res.status(400).json({
+        success: false,
+        message: 'Shipping address is required',
       });
+    }
 
-      // Update product stock
-      product.stock -= item.quantity;
-      await product.save();
+    // Validate total
+    if (!total || total <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid order total',
+      });
     }
 
     const order = new Order({
       userId: req.userId,
-      items: populatedItems,
-      totalAmount,
-      status: status || 'pending',
+      items,
       shippingAddress,
-      paymentMethod: paymentMethod || 'credit-card',
-      paymentStatus: paymentStatus || 'completed',
+      subtotal: subtotal || 0,
+      discount: discount || 0,
+      couponCode: couponCode || null,
+      tax: tax || 0,
+      total,
+      paymentMethod,
+      status: 'pending',
     });
 
     await order.save();
-    
-    // Populate user and product details
-    await order.populate(['userId', 'items.product']);
+    await order.populate('userId', '-password');
 
     res.status(201).json({
       success: true,
@@ -112,7 +100,6 @@ router.get('/', protect, async (req, res) => {
 router.get('/:id', protect, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
-      .populate('items.product')
       .populate('userId', '-password');
 
     if (!order) {
@@ -122,7 +109,7 @@ router.get('/:id', protect, async (req, res) => {
       });
     }
 
-    // Check if user owns the order or is admin
+    // Check if user owns the order
     if (order.userId._id.toString() !== req.userId) {
       return res.status(403).json({
         success: false,
@@ -142,10 +129,10 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-// Update order status (Admin only)
+// Update order status
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { status, paymentStatus } = req.body;
+    const { status } = req.body;
 
     const order = await Order.findById(req.params.id);
 
@@ -164,11 +151,12 @@ router.put('/:id', protect, async (req, res) => {
       });
     }
 
-    if (status) order.status = status;
-    if (paymentStatus) order.paymentStatus = paymentStatus;
+    if (status) {
+      order.updateStatus(status);
+    }
 
     await order.save();
-    await order.populate(['userId', 'items.product']);
+    await order.populate('userId', '-password');
 
     res.json({
       success: true,
@@ -211,18 +199,9 @@ router.put('/:id/cancel', protect, async (req, res) => {
       });
     }
 
-    // Restore product stock
-    for (const item of order.items) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.stock += item.quantity;
-        await product.save();
-      }
-    }
-
     order.status = 'cancelled';
     await order.save();
-    await order.populate(['userId', 'items.product']);
+    await order.populate('userId', '-password');
 
     res.json({
       success: true,

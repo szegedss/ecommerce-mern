@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     }
 
     const products = await Product.find(query);
-    res.json(products);
+    res.json({ data: products });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    res.json(product);
+    res.json({ data: product });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

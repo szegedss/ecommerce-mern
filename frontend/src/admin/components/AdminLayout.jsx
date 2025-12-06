@@ -12,6 +12,7 @@ export default function AdminLayout({ children }) {
     { path: '/admin', label: 'Dashboard', icon: '📊' },
     { path: '/admin/categories', label: 'Categories', icon: '🏷️' },
     { path: '/admin/products', label: 'Products', icon: '📦' },
+    { path: '/admin/coupons', label: 'Coupons', icon: '🎟️' },
     { path: '/admin/users', label: 'Users', icon: '👥' },
     { path: '/admin/orders', label: 'Orders', icon: '🛒' },
   ];
