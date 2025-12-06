@@ -58,7 +58,7 @@ export default function Checkout() {
           name: item.name_th || item.name,
           price: item.price,
           quantity: item.quantity,
-          image: item.image,
+          image: item.images?.find(img => img.isPrimary)?.url || item.images?.[0]?.url || item.image || '',
         })),
         shippingAddress: {
           firstName: formData.firstName,

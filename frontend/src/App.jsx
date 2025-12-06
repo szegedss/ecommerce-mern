@@ -21,6 +21,7 @@ import MyOrders from './pages/MyOrders';
 import Wishlist from './pages/Wishlist';
 import AdminPage from './pages/Admin';
 import AdminCategoriesPage from './pages/AdminCategories';
+import AdminProductsPage from './pages/AdminProducts';
 import AdminUsersPage from './pages/AdminUsers';
 import AdminCouponsPage from './pages/AdminCoupons';
 import AdminOrders from './pages/AdminOrders';
@@ -60,6 +61,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+        <Route path="/admin/products" element={<AdminProductsPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/coupons" element={<AdminCouponsPage />} />
         <Route path="/admin/orders" element={<AdminOrders />} />

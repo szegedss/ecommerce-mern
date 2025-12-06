@@ -19,6 +19,7 @@ export default function ProductDetails() {
   const [refreshReviews, setRefreshReviews] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(0); // Track selected image index
 
   useEffect(() => {
     fetchProductDetails();
@@ -110,16 +111,63 @@ export default function ProductDetails() {
         {/* Product Details */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-            {/* Product Image */}
-            <div className="flex items-center justify-center bg-gray-100 rounded-lg p-8">
-              {product.image ? (
-                <img
-                  src={product.image}
-                  alt={getProductName(product)}
-                  className="max-h-500px max-w-full object-contain"
-                />
-              ) : (
-                <div className="text-gray-400 text-6xl">🛍️</div>
+            {/* Product Images Gallery */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="flex items-center justify-center bg-gray-100 rounded-lg p-4 aspect-square">
+                {(product.images?.length > 0 || product.image) ? (
+                  <img
+                    src={product.images?.[selectedImage]?.url || product.images?.[0]?.url || product.image}
+                    alt={getProductName(product)}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : (
+                  <div className="text-gray-400 text-6xl">🛍️</div>
+                )}
+              </div>
+              
+              {/* Thumbnails */}
+              {product.images?.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {product.images.map((img, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === index 
+                          ? 'border-orange-500 ring-2 ring-orange-200' 
+                          : 'border-gray-200 hover:border-orange-300'
+                      }`}
+                    >
+                      <img
+                        src={img.url}
+                        alt={`${getProductName(product)} - ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {/* Image Navigation Arrows (for mobile) */}
+              {product.images?.length > 1 && (
+                <div className="flex justify-center gap-4 md:hidden">
+                  <button
+                    onClick={() => setSelectedImage(prev => prev > 0 ? prev - 1 : product.images.length - 1)}
+                    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+                  >
+                    ←
+                  </button>
+                  <span className="py-2 text-gray-600">
+                    {selectedImage + 1} / {product.images.length}
+                  </span>
+                  <button
+                    onClick={() => setSelectedImage(prev => prev < product.images.length - 1 ? prev + 1 : 0)}
+                    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+                  >
+                    →
+                  </button>
+                </div>
               )}
             </div>
 

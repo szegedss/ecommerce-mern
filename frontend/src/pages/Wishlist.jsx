@@ -131,7 +131,7 @@ export default function Wishlist() {
                   <Link to={`/product/${product._id}`} className="block relative">
                     <div className="aspect-square overflow-hidden">
                       <img
-                        src={product.images?.[0] || '/placeholder.jpg'}
+                        src={product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url || product.image || '/placeholder.jpg'}
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />

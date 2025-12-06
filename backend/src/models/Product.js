@@ -47,7 +47,10 @@ const productSchema = new mongoose.Schema(
         min: 0,
         validate: {
           validator: function (value) {
-            if (this.discount.type === 'percentage') {
+            // Use parent() to access the parent document properly
+            const parent = this.parent ? this.parent() : this;
+            const discountType = parent?.discount?.type || this?.type;
+            if (discountType === 'percentage') {
               return value >= 0 && value <= 100;
             }
             return true;

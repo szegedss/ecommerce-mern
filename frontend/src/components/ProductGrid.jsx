@@ -232,9 +232,9 @@ export default function ProductGrid() {
                   >
                     {/* Product Image */}
                     <div className="relative aspect-square bg-gray-100 overflow-hidden group flex-shrink-0">
-                      {product.image ? (
+                      {(product.images?.length > 0 || product.image) ? (
                         <img
-                          src={product.image}
+                          src={product.images?.find(img => img.isPrimary)?.url || product.images?.[0]?.url || product.image}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />

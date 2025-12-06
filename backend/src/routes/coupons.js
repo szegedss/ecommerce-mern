@@ -57,7 +57,7 @@ router.post('/validate', protect, async (req, res) => {
     }
 
     // Check if user can use this coupon
-    const userUsageResult = coupon.canUserUseCoupon(req.user._id);
+    const userUsageResult = coupon.canUserUseCoupon(req.userId);
     if (!userUsageResult.canUse) {
       return res.status(400).json({
         success: false,
@@ -199,7 +199,7 @@ router.post('/admin', protect, admin, async (req, res) => {
       applicableCategories: applicableCategories || [],
       applicableProducts: applicableProducts || [],
       isActive: isActive !== undefined ? isActive : true,
-      createdBy: req.user._id,
+      createdBy: req.userId,
     });
 
     await coupon.save();
@@ -306,7 +306,7 @@ router.delete('/admin/:id', protect, admin, async (req, res) => {
 router.get('/user/saved', protect, async (req, res) => {
   try {
     const coupons = await Coupon.find({
-      'usageHistory.userId': req.user._id,
+      'usageHistory.userId': req.userId,
       isActive: true,
     }).select('uniqueCode code_th code_en description_th description_en discountType discountValue expiryDate');
 
@@ -347,12 +347,12 @@ router.post('/user/save', protect, async (req, res) => {
 
     // Check if already saved
     const alreadySaved = coupon.usageHistory.some(
-      (usage) => usage.userId.toString() === req.user._id.toString()
+      (usage) => usage.userId.toString() === req.userId.toString()
     );
 
     if (!alreadySaved) {
       coupon.usageHistory.push({
-        userId: req.user._id,
+        userId: req.userId,
         usageCount: 0,
         lastUsedAt: null,
       });
