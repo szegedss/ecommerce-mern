@@ -192,7 +192,10 @@ router.post('/:productId', auth, async (req, res) => {
 
     console.log('Found user:', { id: user._id, name: user.name });
 
-    // Create review with order reference
+    // Extract images and video from request body
+    const { images, video } = req.body;
+
+    // Create review with order reference and media
     const review = new Review({
       product: productId,
       user: userId,
@@ -202,6 +205,8 @@ router.post('/:productId', auth, async (req, res) => {
       comment,
       rating,
       status: 'approved',
+      images: images || [],
+      video: video || { url: '', publicId: '' },
     });
 
     const savedReview = await review.save();
@@ -224,7 +229,7 @@ router.post('/:productId', auth, async (req, res) => {
 router.put('/:reviewId', auth, async (req, res) => {
   try {
     const { reviewId } = req.params;
-    const { title, comment, rating } = req.body;
+    const { title, comment, rating, images, video } = req.body;
     const userId = req.userId;
 
     const review = await Review.findById(reviewId);
@@ -249,6 +254,16 @@ router.put('/:reviewId', auth, async (req, res) => {
         });
       }
       review.rating = rating;
+    }
+    
+    // Update images if provided
+    if (images !== undefined) {
+      review.images = images;
+    }
+    
+    // Update video if provided
+    if (video !== undefined) {
+      review.video = video;
     }
 
     const updatedReview = await review.save();

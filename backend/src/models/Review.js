@@ -45,6 +45,16 @@ const reviewSchema = new mongoose.Schema(
       required: [true, 'Please provide a review comment'],
       maxlength: [1000, 'Review comment cannot exceed 1000 characters'],
     },
+    // Review images (uploaded to Cloudinary)
+    images: [{
+      url: { type: String, required: true },
+      publicId: { type: String }, // For Cloudinary deletion
+    }],
+    // Review video (optional, uploaded to Cloudinary)
+    video: {
+      url: { type: String, default: '' },
+      publicId: { type: String },
+    },
     // Helpful count
     helpful: {
       type: Number,

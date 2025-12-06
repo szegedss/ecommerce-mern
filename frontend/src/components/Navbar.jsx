@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore, useWishlistStore } from '../store';
 import LanguageSwitcher from './LanguageSwitcher';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const { t } = useTranslation();
@@ -57,9 +58,17 @@ export default function Navbar() {
           <div className="flex gap-4 items-center">
             {isLoggedIn ? (
               <>
-                <span className="text-gray-700">
-                  {t('messages.welcome')}, {user?.name}
-                </span>
+                <NotificationBell />
+                <Link to="/profile" className="text-gray-700 hover:text-primary flex items-center gap-1">
+                  <span className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                    ) : (
+                      user?.name?.charAt(0)?.toUpperCase() || '?'
+                    )}
+                  </span>
+                  <span className="hidden md:inline">{user?.name?.split(' ')[0]}</span>
+                </Link>
                 {user?.role === 'admin' && (
                   <Link to="/admin" className="text-purple-600 hover:text-purple-700 font-bold">
                     {t('common.admin')}

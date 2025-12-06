@@ -75,9 +75,22 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a product category'],
     },
+    // Main image (backward compatibility)
     image: {
       type: String,
       default: '',
+    },
+    // Multiple images array (new)
+    images: [{
+      url: { type: String, required: true },
+      publicId: { type: String }, // Cloudinary public ID for deletion
+      alt: { type: String, default: '' },
+      isPrimary: { type: Boolean, default: false },
+    }],
+    // Video URL (optional)
+    video: {
+      url: { type: String, default: '' },
+      publicId: { type: String },
     },
     stock: {
       type: Number,
