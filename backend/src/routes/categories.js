@@ -44,16 +44,19 @@ router.get('/:id', async (req, res) => {
 // Create category (admin only)
 router.post('/', protect, admin, async (req, res) => {
   try {
-    const { name, description, image, icon, displayOrder } = req.body;
+    const { name_th, name_en, description_th, description_en, image, icon, displayOrder } = req.body;
 
-    if (!name) {
+    if (!name_th || !name_en) {
       return res.status(400).json({
         success: false,
-        message: 'Category name is required',
+        message: 'Category names in both Thai and English are required',
       });
     }
 
-    const existingCategory = await Category.findOne({ name });
+    // Generate slug from English name
+    const slug = name_en.toLowerCase().replace(/\s+/g, '-');
+
+    const existingCategory = await Category.findOne({ slug });
     if (existingCategory) {
       return res.status(400).json({
         success: false,
@@ -62,8 +65,11 @@ router.post('/', protect, admin, async (req, res) => {
     }
 
     const category = new Category({
-      name,
-      description: description || '',
+      name_th,
+      name_en,
+      slug,
+      description_th: description_th || '',
+      description_en: description_en || '',
       image: image || '',
       icon: icon || '',
       displayOrder: displayOrder || 0,
@@ -86,7 +92,7 @@ router.post('/', protect, admin, async (req, res) => {
 // Update category (admin only)
 router.put('/:id', protect, admin, async (req, res) => {
   try {
-    const { name, description, image, icon, displayOrder, isActive } = req.body;
+    const { name_th, name_en, description_th, description_en, image, icon, displayOrder, isActive } = req.body;
 
     const category = await Category.findById(req.params.id);
     if (!category) {
@@ -96,19 +102,23 @@ router.put('/:id', protect, admin, async (req, res) => {
       });
     }
 
-    // Check if name is being changed and if new name already exists
-    if (name && name !== category.name) {
-      const existingCategory = await Category.findOne({ name });
+    // Check if English name is being changed and if new slug already exists
+    if (name_en && name_en !== category.name_en) {
+      const newSlug = name_en.toLowerCase().replace(/\s+/g, '-');
+      const existingCategory = await Category.findOne({ slug: newSlug, _id: { $ne: req.params.id } });
       if (existingCategory) {
         return res.status(400).json({
           success: false,
-          message: 'Category name already exists',
+          message: 'Category with this English name already exists',
         });
       }
+      category.slug = newSlug;
     }
 
-    if (name) category.name = name;
-    if (description !== undefined) category.description = description;
+    if (name_th) category.name_th = name_th;
+    if (name_en) category.name_en = name_en;
+    if (description_th !== undefined) category.description_th = description_th;
+    if (description_en !== undefined) category.description_en = description_en;
     if (image !== undefined) category.image = image;
     if (icon !== undefined) category.icon = icon;
     if (displayOrder !== undefined) category.displayOrder = displayOrder;

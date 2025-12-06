@@ -2,10 +2,17 @@ const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema(
   {
-    name: {
+    // Thai name
+    name_th: {
       type: String,
-      required: [true, 'Please provide a category name'],
-      unique: true,
+      required: [true, 'Please provide a category name in Thai'],
+      trim: true,
+      maxlength: [50, 'Category name cannot exceed 50 characters'],
+    },
+    // English name
+    name_en: {
+      type: String,
+      required: [true, 'Please provide a category name in English'],
       trim: true,
       maxlength: [50, 'Category name cannot exceed 50 characters'],
     },
@@ -14,7 +21,14 @@ const categorySchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    description: {
+    // Thai description
+    description_th: {
+      type: String,
+      trim: true,
+      maxlength: [500, 'Description cannot exceed 500 characters'],
+    },
+    // English description
+    description_en: {
       type: String,
       trim: true,
       maxlength: [500, 'Description cannot exceed 500 characters'],
@@ -39,10 +53,10 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Generate slug from name before saving
+// Generate slug from English name before saving
 categorySchema.pre('save', function (next) {
-  if (this.isModified('name')) {
-    this.slug = this.name
+  if (this.isModified('name_en') || !this.slug) {
+    this.slug = this.name_en
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')

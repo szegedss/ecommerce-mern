@@ -2,15 +2,29 @@ const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema(
   {
-    name: {
+    // Thai name
+    name_th: {
       type: String,
-      required: [true, 'Please provide a product name'],
+      required: [true, 'Please provide a product name in Thai'],
       trim: true,
       maxlength: [100, 'Product name cannot exceed 100 characters'],
     },
-    description: {
+    // English name
+    name_en: {
       type: String,
-      required: [true, 'Please provide a product description'],
+      required: [true, 'Please provide a product name in English'],
+      trim: true,
+      maxlength: [100, 'Product name cannot exceed 100 characters'],
+    },
+    // Thai description
+    description_th: {
+      type: String,
+      required: [true, 'Please provide a product description in Thai'],
+    },
+    // English description
+    description_en: {
+      type: String,
+      required: [true, 'Please provide a product description in English'],
     },
     price: {
       type: Number,
