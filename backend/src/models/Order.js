@@ -57,10 +57,9 @@ const orderSchema = new mongoose.Schema(
       enum: ['credit-card', 'bank-transfer', 'cash-on-delivery'],
       required: true,
     },
-    status: {
-      type: String,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'pending',
+    discount: {
+      type: Number,
+      default: 0,
     },
     notes: String,
   },
