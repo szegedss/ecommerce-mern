@@ -14,6 +14,7 @@ import PaymentPage from './pages/PaymentPage';
 import OrderConfirmation from './pages/OrderConfirmation';
 import MyCoupons from './pages/MyCoupons';
 import MyOrders from './pages/MyOrders';
+import Wishlist from './pages/Wishlist';
 import AdminPage from './pages/Admin';
 import AdminCategoriesPage from './pages/AdminCategories';
 import AdminUsersPage from './pages/AdminUsers';
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
                 <Route path="/my-coupons" element={<MyCoupons />} />
                 <Route path="/my-orders" element={<MyOrders />} />
+                <Route path="/wishlist" element={<Wishlist />} />
               </Routes>
             </div>
           }

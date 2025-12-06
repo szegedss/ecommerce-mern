@@ -142,3 +142,104 @@ export const useCheckoutStore = create((set) => ({
     });
   },
 }));
+
+export const useWishlistStore = create((set, get) => ({
+  items: [],
+  loading: false,
+  error: null,
+
+  fetchWishlist: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    set({ loading: true, error: null });
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_URL}/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        set({ items: data.data.products, loading: false });
+      } else {
+        set({ error: data.message, loading: false });
+      }
+    } catch (error) {
+      set({ error: error.message, loading: false });
+    }
+  },
+
+  addToWishlist: async (productId) => {
+    const token = localStorage.getItem('token');
+    if (!token) return { success: false, message: 'Please login first' };
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_URL}/wishlist/${productId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        set({ items: data.data.products });
+        return { success: true, message: 'Added to wishlist' };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+
+  removeFromWishlist: async (productId) => {
+    const token = localStorage.getItem('token');
+    if (!token) return { success: false, message: 'Please login first' };
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_URL}/wishlist/${productId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        set((state) => ({
+          items: state.items.filter((item) => item.product._id !== productId),
+        }));
+        return { success: true, message: 'Removed from wishlist' };
+      } else {
+        return { success: false, message: data.message };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  },
+
+  isInWishlist: (productId) => {
+    const state = get();
+    return state.items.some((item) => item.product?._id === productId);
+  },
+
+  clearWishlist: async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      await fetch(`${API_URL}/wishlist`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      set({ items: [] });
+    } catch (error) {
+      console.error('Error clearing wishlist:', error);
+    }
+  },
+
+  getWishlistCount: () => {
+    return get().items.length;
+  },
+}));

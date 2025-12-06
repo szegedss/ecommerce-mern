@@ -7,6 +7,7 @@ import SearchBar from './filters/SearchBar';
 import PriceRangeFilter from './filters/PriceRangeFilter';
 import RatingFilter from './filters/RatingFilter';
 import SortFilter from './filters/SortFilter';
+import WishlistButton from './WishlistButton';
 
 export default function ProductGrid() {
   const navigate = useNavigate();
@@ -243,6 +244,11 @@ export default function ProductGrid() {
                         </div>
                       )}
 
+                      {/* Wishlist Button */}
+                      <div className="absolute top-2 left-2 z-10">
+                        <WishlistButton productId={product._id} size="sm" />
+                      </div>
+
                       {/* Stock Badge */}
                       <div className="absolute top-2 right-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
                         {product.stock > 0 ? '✓ In Stock' : '✗ Out'}
@@ -250,7 +256,7 @@ export default function ProductGrid() {
 
                       {/* Category Badge */}
                       {product.category && (
-                        <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                        <div className="absolute bottom-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-semibold">
                           {product.category}
                         </div>
                       )}

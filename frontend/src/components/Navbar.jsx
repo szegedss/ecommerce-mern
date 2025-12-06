@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../store';
+import { useAuthStore, useWishlistStore } from '../store';
 import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar() {
   const { t } = useTranslation();
   const { isLoggedIn, user, logout } = useAuthStore();
+  const { items: wishlistItems, fetchWishlist } = useWishlistStore();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchWishlist();
+    }
+  }, [isLoggedIn, fetchWishlist]);
 
   return (
     <nav className="bg-white shadow-md">
@@ -30,6 +37,14 @@ export default function Navbar() {
             </Link>
             {isLoggedIn && (
               <>
+                <Link to="/wishlist" className="text-gray-700 hover:text-primary relative">
+                  ❤️ Wishlist
+                  {wishlistItems.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      {wishlistItems.length}
+                    </span>
+                  )}
+                </Link>
                 <Link to="/my-orders" className="text-gray-700 hover:text-primary">
                   📦 My Orders
                 </Link>
