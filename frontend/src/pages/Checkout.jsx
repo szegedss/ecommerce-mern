@@ -53,7 +53,6 @@ export default function Checkout() {
       setError(null);
 
       const orderData = {
-        userId: user._id,
         items: items.map((item) => ({
           productId: item._id,
           name: item.name_th || item.name,
@@ -64,6 +63,7 @@ export default function Checkout() {
         shippingAddress: {
           firstName: formData.firstName,
           lastName: formData.lastName,
+          email: formData.email,
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
@@ -76,7 +76,6 @@ export default function Checkout() {
         tax: tax,
         total: total,
         paymentMethod: formData.paymentMethod,
-        status: 'pending',
       };
 
       const token = localStorage.getItem('token');

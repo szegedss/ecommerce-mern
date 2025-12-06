@@ -19,7 +19,13 @@ export default function LoginForm() {
     try {
       const response = await authAPI.login({ email, password });
       login(response.data.user, response.data.token);
-      navigate('/');
+      
+      // Redirect to admin dashboard if user is admin
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

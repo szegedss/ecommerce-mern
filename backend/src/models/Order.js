@@ -52,16 +52,41 @@ const orderSchema = new mongoose.Schema(
       required: true,
       default: 0,
     },
+    status: {
+      type: String,
+      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      default: 'pending',
+    },
     paymentMethod: {
       type: String,
-      enum: ['credit-card', 'bank-transfer', 'cash-on-delivery'],
+      enum: ['stripe', 'paypal', 'promptpay', 'bank-transfer', 'credit-card', 'cash-on-delivery'],
       required: true,
     },
-    discount: {
-      type: Number,
-      default: 0,
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'completed', 'failed'],
+      default: 'pending',
     },
+    paymentDetails: {
+      method: String,
+      transactionId: String,
+      timestamp: Date,
+      amount: Number,
+    },
+    trackingNumber: String,
+    shippedDate: Date,
+    deliveredDate: Date,
     notes: String,
+    timeline: [
+      {
+        status: String,
+        timestamp: {
+          type: Date,
+          default: Date.now,
+        },
+        note: String,
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -72,11 +97,26 @@ orderSchema.methods.calculateTotal = function () {
   return this.total;
 };
 
-// Method to update status
-orderSchema.methods.updateStatus = function (newStatus) {
+// Method to update status with timeline
+orderSchema.methods.updateStatus = function (newStatus, note = '') {
   const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
   if (validStatuses.includes(newStatus)) {
     this.status = newStatus;
+    
+    // Add to timeline
+    this.timeline.push({
+      status: newStatus,
+      timestamp: new Date(),
+      note: note,
+    });
+    
+    // Update delivery dates
+    if (newStatus === 'shipped') {
+      this.shippedDate = new Date();
+    } else if (newStatus === 'delivered') {
+      this.deliveredDate = new Date();
+    }
+    
     return true;
   }
   return false;

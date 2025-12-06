@@ -11,10 +11,12 @@ import Payment from './pages/Payment';
 import PaymentPage from './pages/PaymentPage';
 import OrderConfirmation from './pages/OrderConfirmation';
 import MyCoupons from './pages/MyCoupons';
+import MyOrders from './pages/MyOrders';
 import AdminPage from './pages/Admin';
 import AdminCategoriesPage from './pages/AdminCategories';
 import AdminUsersPage from './pages/AdminUsers';
 import AdminCouponsPage from './pages/AdminCoupons';
+import AdminOrders from './pages/AdminOrders';
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
                 <Route path="/payment-gateway" element={<PaymentPage />} />
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
                 <Route path="/my-coupons" element={<MyCoupons />} />
+                <Route path="/my-orders" element={<MyOrders />} />
               </Routes>
             </div>
           }
@@ -45,6 +48,7 @@ function App() {
         <Route path="/admin/categories" element={<AdminCategoriesPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/coupons" element={<AdminCouponsPage />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
       </Routes>
     </Router>
   );

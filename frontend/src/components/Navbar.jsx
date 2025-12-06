@@ -29,9 +29,14 @@ export default function Navbar() {
               {t('common.cart')}
             </Link>
             {isLoggedIn && (
-              <Link to="/my-coupons" className="text-gray-700 hover:text-primary">
-                🎟️ {t('coupons.coupons')}
-              </Link>
+              <>
+                <Link to="/my-orders" className="text-gray-700 hover:text-primary">
+                  📦 My Orders
+                </Link>
+                <Link to="/my-coupons" className="text-gray-700 hover:text-primary">
+                  🎟️ {t('coupons.coupons')}
+                </Link>
+              </>
             )}
           </div>
           <div className="flex gap-4 items-center">
