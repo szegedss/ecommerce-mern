@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCartStore } from '../store';
 import { useTranslation } from 'react-i18next';
+import ReviewForm from '../components/ReviewForm';
+import ReviewsList from '../components/ReviewsList';
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -14,9 +16,24 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [refreshReviews, setRefreshReviews] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     fetchProductDetails();
+    
+    // Check authentication
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    setIsAuthenticated(!!token);
+    if (user) {
+      try {
+        setCurrentUser(JSON.parse(user));
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
   }, [productId]);
 
   const fetchProductDetails = async () => {
@@ -290,6 +307,20 @@ export default function ProductDetails() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="max-w-4xl mx-auto mt-12">
+          <ReviewForm 
+            productId={productId} 
+            onReviewSubmit={() => setRefreshReviews(prev => prev + 1)}
+            isAuthenticated={isAuthenticated}
+            userName={currentUser?.name}
+          />
+          <ReviewsList 
+            productId={productId} 
+            refreshTrigger={refreshReviews}
+          />
         </div>
       </div>
     </div>

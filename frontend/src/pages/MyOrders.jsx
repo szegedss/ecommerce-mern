@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [reviewedOrders, setReviewedOrders] = useState({});
+  const [waitingConfirmation, setWaitingConfirmation] = useState({});
+  const navigate = useNavigate();
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
   const token = localStorage.getItem('token');
@@ -13,6 +17,13 @@ export default function MyOrders() {
   useEffect(() => {
     fetchOrders();
   }, [page]);
+
+  // Check which products have been reviewed
+  useEffect(() => {
+    if (orders.length > 0) {
+      checkReviewedProducts();
+    }
+  }, [orders]);
 
   const fetchOrders = async () => {
     try {
@@ -34,6 +45,91 @@ export default function MyOrders() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Check which products have been reviewed
+  const checkReviewedProducts = async () => {
+    try {
+      const reviewed = {};
+      const waiting = {};
+      
+      for (const order of orders) {
+        if (order.status === 'delivered') {
+          for (const item of order.items) {
+            // Handle both object and string productId
+            const productId = typeof item.productId === 'object' 
+              ? item.productId?._id 
+              : item.productId;
+            
+            if (productId) {
+              try {
+                const response = await axios.get(
+                  `${API_URL}/reviews/check-review-eligibility/${productId}`,
+                  { headers: { Authorization: `Bearer ${token}` } }
+                );
+                
+                console.log('Review eligibility check:', {
+                  productId,
+                  orderId: order._id,
+                  canReview: response.data.canReview,
+                  reason: response.data.reason
+                });
+                
+                const key = `${order._id}-${productId}`;
+                
+                // Check if already reviewed
+                if (response.data.reason === 'already_reviewed_all_orders') {
+                  reviewed[key] = true;
+                }
+                
+                // Check if waiting for confirmation
+                if (response.data.reason === 'waiting_for_delivery_confirmation') {
+                  waiting[key] = true;
+                }
+              } catch (error) {
+                console.error('Error checking review eligibility:', error);
+                // Don't throw, just continue with next product
+              }
+            }
+          }
+        }
+      }
+      
+      console.log('Final reviewed state:', reviewed);
+      console.log('Final waiting state:', waiting);
+      setReviewedOrders(reviewed);
+      setWaitingConfirmation(waiting);
+    } catch (error) {
+      console.error('Error checking reviewed products:', error);
+    }
+  };
+
+  // Confirm delivery and then navigate to review
+  const handleConfirmDeliveryAndReview = async (orderId, productId) => {
+    try {
+      // First, confirm delivery
+      const response = await axios.put(
+        `${API_URL}/orders/${orderId}/confirm-delivery`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        // Update local state to remove from waiting
+        const key = `${orderId}-${productId}`;
+        setWaitingConfirmation(prev => {
+          const newState = { ...prev };
+          delete newState[key];
+          return newState;
+        });
+
+        // Navigate to product page for review
+        navigate(`/product/${productId}`);
+      }
+    } catch (error) {
+      console.error('Error confirming delivery:', error);
+      alert('Failed to confirm delivery. Please try again.');
     }
   };
 
@@ -65,6 +161,11 @@ export default function MyOrders() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  // Handle navigate to product review
+  const handleReviewClick = (productId) => {
+    navigate(`/product/${productId}`, { state: { scrollToReview: true } });
   };
 
   return (
@@ -118,15 +219,53 @@ export default function MyOrders() {
                 <div className="p-6 border-b">
                   <h3 className="font-semibold text-gray-800 mb-4">Items</h3>
                   <div className="space-y-3">
-                    {order.items?.map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center py-2">
-                        <div>
-                          <p className="font-medium text-gray-800">{item.name}</p>
-                          <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                    {order.items?.map((item, idx) => {
+                      // Handle both object and string productId
+                      const productId = typeof item.productId === 'object' 
+                        ? item.productId?._id 
+                        : item.productId;
+                      
+                      return (
+                        <div key={idx} className="flex justify-between items-start py-2 border-b last:border-b-0">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-800">{item.name}</p>
+                            <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-gray-800">฿{(item.price * item.quantity).toLocaleString()}</p>
+                            
+                            {/* Review Button for Delivered Orders - only if not reviewed and not waiting confirmation */}
+                            {order.status === 'delivered' && 
+                              !reviewedOrders[`${order._id}-${productId}`] && 
+                              !waitingConfirmation[`${order._id}-${productId}`] && (
+                              <button
+                                onClick={() => handleReviewClick(productId)}
+                                className="mt-2 px-3 py-1 bg-orange-500 text-white text-sm rounded hover:bg-orange-600 transition inline-block"
+                              >
+                                ⭐ Review
+                              </button>
+                            )}
+
+                            {/* Confirm & Review Button for orders waiting confirmation */}
+                            {order.status === 'delivered' && waitingConfirmation[`${order._id}-${productId}`] && (
+                              <button
+                                onClick={() => handleConfirmDeliveryAndReview(order._id, productId)}
+                                className="mt-2 px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition inline-block"
+                              >
+                                📦 Confirm & Review
+                              </button>
+                            )}
+                            
+                            {/* Reviewed Badge */}
+                            {order.status === 'delivered' && reviewedOrders[`${order._id}-${productId}`] && (
+                              <div className="mt-2 text-xs text-green-600 font-semibold">
+                                ✓ Already Reviewed
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <p className="font-semibold text-gray-800">฿{(item.price * item.quantity).toLocaleString()}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 

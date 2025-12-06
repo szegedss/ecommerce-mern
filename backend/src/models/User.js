@@ -43,6 +43,33 @@ const userSchema = new mongoose.Schema(
       zipCode: { type: String, default: '' },
       country: { type: String, default: '' },
     },
+    // Notifications for review requests
+    notifications: [
+      {
+        type: {
+          type: String,
+          enum: ['review_request', 'order_update', 'other'],
+          default: 'review_request',
+        },
+        message: String,
+        orderId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Order',
+        },
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Product',
+        },
+        read: {
+          type: Boolean,
+          default: false,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

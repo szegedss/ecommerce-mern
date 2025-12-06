@@ -76,6 +76,14 @@ const orderSchema = new mongoose.Schema(
     trackingNumber: String,
     shippedDate: Date,
     deliveredDate: Date,
+    // Delivery confirmation by customer
+    deliveryConfirmedDate: Date,
+    deliveryConfirmed: {
+      type: Boolean,
+      default: false,
+    },
+    // Auto-confirmation will happen 1 day after shipped
+    autoConfirmDate: Date,
     notes: String,
     timeline: [
       {

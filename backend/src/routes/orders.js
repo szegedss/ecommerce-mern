@@ -337,4 +337,53 @@ router.get('/admin/stats', protect, async (req, res) => {
   }
 });
 
+// Confirm delivery of order (customer confirms they received the product)
+router.put('/:id/confirm-delivery', protect, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    // Check authorization
+    if (order.userId.toString() !== req.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    // Only allow confirmation of delivered orders
+    if (order.status !== 'delivered') {
+      return res.status(400).json({
+        success: false,
+        message: 'Order must be delivered before confirming receipt',
+      });
+    }
+
+    // Mark as confirmed
+    order.deliveryConfirmed = true;
+    order.deliveryConfirmedDate = new Date();
+    order.updateStatus('delivered', 'Customer confirmed receipt');
+
+    await order.save();
+    await order.populate('userId', '-password');
+
+    res.json({
+      success: true,
+      message: 'Delivery confirmed successfully',
+      data: order,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 module.exports = router;
