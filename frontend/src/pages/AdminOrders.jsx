@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import AdminLayout from '../admin/components/AdminLayout';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -112,7 +113,8 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50 p-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin - Order Management</h1>
 
       {/* Statistics */}
@@ -309,6 +311,7 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayout>
   );
 }
