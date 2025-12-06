@@ -15,7 +15,8 @@ const {
 // ============================================
 
 // Upload single product image
-router.post('/product/single', auth, admin, uploadProductImages.single('image'), async (req, res) => {
+// productId can be passed as query param, body, or route param
+router.post('/product/single/:productId?', auth, admin, uploadProductImages.single('image'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -45,7 +46,8 @@ router.post('/product/single', auth, admin, uploadProductImages.single('image'),
 });
 
 // Upload multiple product images (max 5)
-router.post('/product/multiple', auth, admin, uploadProductImages.array('images', 5), async (req, res) => {
+// productId can be passed as query param, body, or route param
+router.post('/product/multiple/:productId?', auth, admin, uploadProductImages.array('images', 5), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({

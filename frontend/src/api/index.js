@@ -28,8 +28,8 @@ export const authAPI = {
   resetPassword: (token, password) => api.post(`/auth/reset-password/${token}`, { password }),
   changePassword: (data) => api.put('/auth/change-password', data),
   getMe: () => api.get('/auth/me'),
-  updateProfile: (data) => api.put('/auth/update-profile', data),
-  updateAvatar: (formData) => api.post('/upload/avatar', formData, {
+  updateProfile: (data) => api.put('/auth/profile', data),
+  updateAvatar: (formData) => api.post('/auth/avatar', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   // Address management

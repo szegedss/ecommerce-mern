@@ -1,7 +1,27 @@
 const nodemailer = require('nodemailer');
 
+// Cache for test account
+let testAccount = null;
+
 // Create transporter using SMTP
-const createTransporter = () => {
+const createTransporter = async () => {
+  // In development, use Ethereal if SMTP fails or not configured
+  if (process.env.NODE_ENV === 'development' && process.env.USE_ETHEREAL === 'true') {
+    if (!testAccount) {
+      testAccount = await nodemailer.createTestAccount();
+      console.log('📧 Ethereal test account created:', testAccount.user);
+    }
+    return nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+  }
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT) || 587,
@@ -16,10 +36,10 @@ const createTransporter = () => {
 // Send email helper function
 const sendEmail = async ({ to, subject, html, text }) => {
   try {
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
 
     const mailOptions = {
-      from: `"${process.env.EMAIL_FROM_NAME || 'E-Commerce Store'}" <${process.env.SMTP_USER}>`,
+      from: `"${process.env.EMAIL_FROM_NAME || 'E-Commerce Store'}" <${process.env.SMTP_USER || 'noreply@ecommerce.com'}>`,
       to,
       subject,
       html,
@@ -27,10 +47,25 @@ const sendEmail = async ({ to, subject, html, text }) => {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.messageId);
+    console.log('✅ Email sent:', info.messageId);
+    
+    // If using Ethereal, log the preview URL
+    if (testAccount) {
+      const previewUrl = nodemailer.getTestMessageUrl(info);
+      console.log('📧 Preview URL:', previewUrl);
+    }
+    
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('Email send error:', error);
+    console.error('❌ Email send error:', error.message);
+    
+    // In development, don't fail registration if email fails
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⚠️ Development mode: Continuing despite email failure');
+      console.log('💡 Tip: Add USE_ETHEREAL=true to .env for test emails');
+      return { success: false, error: error.message, devMode: true };
+    }
+    
     return { success: false, error: error.message };
   }
 };

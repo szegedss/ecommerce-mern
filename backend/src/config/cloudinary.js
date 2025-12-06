@@ -9,13 +9,22 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Storage for product images
+// Storage for product images (dynamic folder based on product ID)
 const productStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'ecommerce/products',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 1000, height: 1000, crop: 'limit', quality: 'auto' }],
+  params: async (req, file) => {
+    const productId = req.params.productId || req.body.productId || 'new';
+    const isVideo = file.mimetype.startsWith('video');
+    return {
+      folder: `ecommerce/products/${productId}`,
+      resource_type: isVideo ? 'video' : 'image',
+      allowed_formats: isVideo
+        ? ['mp4', 'mov', 'avi', 'webm']
+        : ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      transformation: isVideo
+        ? [{ quality: 'auto' }]
+        : [{ width: 1000, height: 1000, crop: 'limit', quality: 'auto' }],
+    };
   },
 });
 
@@ -37,13 +46,16 @@ const reviewStorage = new CloudinaryStorage({
   },
 });
 
-// Storage for user avatars
+// Storage for user avatars (dynamic folder based on user ID)
 const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'ecommerce/avatars',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    transformation: [{ width: 300, height: 300, crop: 'fill', gravity: 'face', quality: 'auto' }],
+  params: async (req, file) => {
+    const userId = req.userId || 'unknown';
+    return {
+      folder: `ecommerce/user-profile/${userId}`,
+      allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+      transformation: [{ width: 300, height: 300, crop: 'fill', gravity: 'face', quality: 'auto' }],
+    };
   },
 });
 
