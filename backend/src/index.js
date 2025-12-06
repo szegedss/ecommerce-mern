@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -10,6 +11,17 @@ const categoryRoutes = require('./routes/categories');
 const adminRoutes = require('./routes/admin');
 
 const app = express();
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => {
+  console.error('MongoDB connection error:', err.message);
+  process.exit(1);
+});
 
 // Middleware
 app.use(helmet());
