@@ -8,6 +8,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ThankYou from './pages/ThankYou';
 import Payment from './pages/Payment';
+import PaymentPage from './pages/PaymentPage';
 import OrderConfirmation from './pages/OrderConfirmation';
 import MyCoupons from './pages/MyCoupons';
 import AdminPage from './pages/Admin';
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/thank-you/:orderId" element={<ThankYou />} />
                 <Route path="/payment" element={<Payment />} />
+                <Route path="/payment-gateway" element={<PaymentPage />} />
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
                 <Route path="/my-coupons" element={<MyCoupons />} />
               </Routes>
