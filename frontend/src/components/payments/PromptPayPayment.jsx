@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import QRCode from 'qrcode.react';
 
 export default function PromptPayPayment({ amount, onSuccess, onError, processing: externalProcessing }) {
   const [qrCode, setQrCode] = useState(null);
