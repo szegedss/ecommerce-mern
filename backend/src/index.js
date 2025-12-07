@@ -47,16 +47,51 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use(helmet());
 
 // Parse CORS origins from environment variable
-const corsOrigins = process.env.CORS_ORIGINS 
+let allowedOrigins = process.env.CORS_ORIGINS 
   ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
   : ['http://localhost:5173', 'http://localhost:5000'];
 
-app.use(cors({
-  origin: corsOrigins,
+// Auto-add current server URL for Swagger UI (if on Render or similar)
+const serverUrl = process.env.RENDER_EXTERNAL_URL || process.env.BASE_URL;
+if (serverUrl && !allowedOrigins.includes(serverUrl)) {
+  allowedOrigins.push(serverUrl);
+  logger.info('Auto-added server URL to CORS origins:', serverUrl);
+}
+
+logger.info('CORS allowed origins:', { origins: allowedOrigins });
+
+// CORS configuration with more flexible settings
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.some(allowedOrigin => {
+      // Support wildcard subdomain matching
+      if (allowedOrigin.includes('*')) {
+        const pattern = allowedOrigin.replace(/\*/g, '.*');
+        const regex = new RegExp(`^${pattern}$`);
+        return regex.test(origin);
+      }
+      return allowedOrigin === origin;
+    })) {
+      callback(null, true);
+    } else {
+      logger.warn('Blocked by CORS:', { origin, allowedOrigins });
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -65,17 +100,38 @@ app.use(morganMiddleware);
 app.use(requestTiming);
 app.use(requestBodyLogger);
 
-// Swagger documentation
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Swagger documentation with dynamic server URL
+const getSwaggerSpec = () => {
+  const spec = { ...swaggerSpec };
+  
+  // Override servers based on environment
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 
+                  process.env.BASE_URL || 
+                  `http://localhost:${process.env.PORT || 5000}`;
+  
+  spec.servers = [
+    {
+      url: `${baseUrl}/api`,
+      description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
+    }
+  ];
+  
+  return spec;
+};
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(getSwaggerSpec(), {
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'E-Commerce API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+  }
 }));
 
 // Swagger JSON endpoint
 app.get('/api/docs.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
+  res.send(getSwaggerSpec());
 });
 
 // ============================================
