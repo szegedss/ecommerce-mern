@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { authAPI } from '../api';
-import { addressSchema } from '../utils/validationSchemas';
-import { showSuccess, showError, confirmDelete } from '../utils/alerts';
+import { authAPI } from '../../api';
+import { addressSchema } from '../../utils/validationSchemas';
+import { showSuccess, showError, confirmDelete } from '../../utils/alerts';
 
 export default function AddressManager({ addresses = [], onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);

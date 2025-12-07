@@ -45,14 +45,14 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // Middleware
 app.use(helmet());
+
+// Parse CORS origins from environment variable
+const corsOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : ['http://localhost:5173', 'http://localhost:5000'];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',  // Vite frontend
-    'http://localhost:5000',  // Swagger UI
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5000',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean),
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
