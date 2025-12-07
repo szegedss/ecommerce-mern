@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore, useWishlistStore } from '../store';
+import { useAuthStore, useWishlistStore } from '../../store';
 import LanguageSwitcher from './LanguageSwitcher';
-import NotificationBell from './NotificationBell';
+import NotificationBell from '../user/NotificationBell';
 
 export default function Navbar() {
   const { t } = useTranslation();

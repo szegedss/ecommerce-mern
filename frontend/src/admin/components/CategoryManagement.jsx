@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI } from '../api/admin';
+import { adminAPI } from '../../api/admin';
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);

@@ -1,151 +1,172 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/Product');
+const { productController } = require('../controllers');
+const { protect, admin } = require('../middleware/auth');
 
-// Get all products with advanced filtering
-router.get('/', async (req, res) => {
-  try {
-    const { category, search, minPrice, maxPrice, minRating, sort, page = 1, limit = 20 } = req.query;
-    let query = {};
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get all products with filtering
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search in name and description
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Minimum price
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Maximum price
+ *       - in: query
+ *         name: minRating
+ *         schema:
+ *           type: number
+ *         description: Minimum rating
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [newest, price-asc, price-desc, rating, popular]
+ *         description: Sort order
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: List of products
+ */
+router.get('/', 
+  // #swagger.tags = ['Products']
+  // #swagger.summary = 'Get all products'
+  productController.getAllProducts
+);
 
-    // Category filter
-    if (category && category !== 'all') {
-      query.category = category;
-    }
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Product details
+ *       404:
+ *         description: Product not found
+ */
+router.get('/:id', 
+  // #swagger.tags = ['Products']
+  // #swagger.summary = 'Get product by ID'
+  productController.getProductById
+);
 
-    // Search filter (text search in multiple fields)
-    if (search) {
-      query.$or = [
-        { name_th: { $regex: search, $options: 'i' } },
-        { name_en: { $regex: search, $options: 'i' } },
-        { description_th: { $regex: search, $options: 'i' } },
-        { description_en: { $regex: search, $options: 'i' } },
-      ];
-    }
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Create a new product (Admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProductInput'
+ *     responses:
+ *       201:
+ *         description: Product created
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post('/', protect, admin, 
+  // #swagger.tags = ['Products']
+  // #swagger.summary = 'Create a new product (Admin)'
+  productController.createProduct
+);
 
-    // Price range filter
-    if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) {
-        query.price.$gte = parseFloat(minPrice);
-      }
-      if (maxPrice) {
-        query.price.$lte = parseFloat(maxPrice);
-      }
-    }
+/**
+ * @swagger
+ * /products/{id}:
+ *   put:
+ *     summary: Update a product (Admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ProductInput'
+ *     responses:
+ *       200:
+ *         description: Product updated
+ *       404:
+ *         description: Product not found
+ */
+router.put('/:id', protect, admin, 
+  // #swagger.tags = ['Products']
+  // #swagger.summary = 'Update a product (Admin)'
+  productController.updateProduct
+);
 
-    // Rating filter (minimum rating)
-    if (minRating) {
-      query.rating = { $gte: parseFloat(minRating) };
-    }
-
-    // Sorting options
-    let sortOption = { createdAt: -1 }; // Default: newest first
-    if (sort) {
-      switch (sort) {
-        case 'price-asc':
-          sortOption = { price: 1 };
-          break;
-        case 'price-desc':
-          sortOption = { price: -1 };
-          break;
-        case 'rating':
-          sortOption = { rating: -1 };
-          break;
-        case 'newest':
-          sortOption = { createdAt: -1 };
-          break;
-        case 'oldest':
-          sortOption = { createdAt: 1 };
-          break;
-        default:
-          sortOption = { createdAt: -1 };
-      }
-    }
-
-    // Calculate pagination
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 20;
-    const skip = (pageNum - 1) * limitNum;
-
-    // Get total count for pagination
-    const total = await Product.countDocuments(query);
-    const totalPages = Math.ceil(total / limitNum);
-
-    // Fetch products with sorting and pagination
-    const products = await Product.find(query)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limitNum);
-
-    res.json({
-      success: true,
-      data: products,
-      pagination: {
-        total,
-        page: pageNum,
-        limit: limitNum,
-        totalPages,
-        hasNextPage: pageNum < totalPages,
-        hasPrevPage: pageNum > 1,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Get product by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    res.json({ data: product });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Create product (Admin only)
-router.post('/', async (req, res) => {
-  try {
-    const product = new Product(req.body);
-    await product.save();
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Update product (Admin only)
-router.put('/:id', async (req, res) => {
-  try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    res.json(product);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Delete product (Admin only)
-router.delete('/:id', async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-    res.json({ message: 'Product deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Delete a product (Admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Product deleted
+ *       404:
+ *         description: Product not found
+ */
+router.delete('/:id', protect, admin, 
+  // #swagger.tags = ['Products']
+  // #swagger.summary = 'Delete a product (Admin)'
+  productController.deleteProduct
+);
 
 module.exports = router;

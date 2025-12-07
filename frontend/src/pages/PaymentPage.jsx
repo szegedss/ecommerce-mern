@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCartStore, useAuthStore } from '../store';
-import PaymentGateway from '../components/PaymentGateway';
+import { PaymentGateway } from '../components';
 import axios from 'axios';
 
 export default function PaymentPage() {

@@ -6,7 +6,7 @@ import { authAPI } from '../api';
 import { useAuthStore } from '../store';
 import { profileSchema, changePasswordSchema } from '../utils/validationSchemas';
 import { showSuccess, showError, confirmDelete } from '../utils/alerts';
-import AddressManager from '../components/AddressManager';
+import { AddressManager } from '../components';
 
 export default function Profile() {
   const navigate = useNavigate();

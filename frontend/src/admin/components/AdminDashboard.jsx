@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminAPI } from '../api/admin';
+import { adminAPI } from '../../api/admin';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {

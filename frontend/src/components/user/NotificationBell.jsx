@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuthStore } from '../store';
+import { useAuthStore } from '../../store';
 
 export default function NotificationBell() {
   const [notifications, setNotifications] = useState([]);

@@ -5,6 +5,18 @@ const Product = require('../models/Product');
 const { auth } = require('../middleware/auth');
 const mongoose = require('mongoose');
 
+/**
+ * @swagger
+ * /wishlist:
+ *   get:
+ *     summary: Get user's wishlist
+ *     tags: [Wishlist]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's wishlist
+ */
 // @route   GET /api/wishlist
 // @desc    Get user's wishlist
 // @access  Private
@@ -40,10 +52,30 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /wishlist/{productId}:
+ *   post:
+ *     summary: Add product to wishlist
+ *     tags: [Wishlist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Product added to wishlist
+ */
 // @route   POST /api/wishlist/:productId
 // @desc    Add product to wishlist
 // @access  Private
 router.post('/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Wishlist']
+  // #swagger.summary = 'Add product to wishlist'
   try {
     const { productId } = req.params;
 
@@ -113,6 +145,8 @@ router.post('/:productId', auth, async (req, res) => {
 // @desc    Remove product from wishlist
 // @access  Private
 router.delete('/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Wishlist']
+  // #swagger.summary = 'Remove product from wishlist'
   try {
     const { productId } = req.params;
 
@@ -161,6 +195,8 @@ router.delete('/:productId', auth, async (req, res) => {
 // @desc    Check if product is in wishlist
 // @access  Private
 router.get('/check/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Wishlist']
+  // #swagger.summary = 'Check if product is in wishlist'
   try {
     const { productId } = req.params;
 
@@ -196,6 +232,8 @@ router.get('/check/:productId', auth, async (req, res) => {
 // @desc    Clear entire wishlist
 // @access  Private
 router.delete('/', auth, async (req, res) => {
+  // #swagger.tags = ['Wishlist']
+  // #swagger.summary = 'Clear entire wishlist'
   try {
     const wishlist = await Wishlist.findOne({ user: req.userId });
 
@@ -225,6 +263,8 @@ router.delete('/', auth, async (req, res) => {
 // @desc    Move product from wishlist to cart
 // @access  Private
 router.post('/move-to-cart/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Wishlist']
+  // #swagger.summary = 'Move product from wishlist to cart'
   try {
     const { productId } = req.params;
 

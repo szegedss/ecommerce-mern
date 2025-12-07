@@ -1,30 +1,34 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Products from './pages/Products';
-import ProductDetails from './pages/ProductDetails';
-import LoginPage from './pages/Login';
-import RegisterPage from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import VerifyEmail from './pages/VerifyEmail';
-import Profile from './pages/Profile';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import ThankYou from './pages/ThankYou';
-import Payment from './pages/Payment';
-import PaymentPage from './pages/PaymentPage';
-import OrderConfirmation from './pages/OrderConfirmation';
-import MyCoupons from './pages/MyCoupons';
-import MyOrders from './pages/MyOrders';
-import Wishlist from './pages/Wishlist';
-import AdminPage from './pages/Admin';
-import AdminCategoriesPage from './pages/AdminCategories';
-import AdminProductsPage from './pages/AdminProducts';
-import AdminUsersPage from './pages/AdminUsers';
-import AdminCouponsPage from './pages/AdminCoupons';
-import AdminOrders from './pages/AdminOrders';
+import { Navbar } from './components';
+import {
+  Home,
+  Products,
+  ProductDetails,
+  Login as LoginPage,
+  Register as RegisterPage,
+  ForgotPassword,
+  ResetPassword,
+  VerifyEmail,
+  Profile,
+  Cart,
+  Checkout,
+  ThankYou,
+  Payment,
+  PaymentPage,
+  OrderConfirmation,
+  MyCoupons,
+  MyOrders,
+  Wishlist,
+} from './pages';
+import {
+  AdminPage,
+  AdminCategoriesPage,
+  AdminProductsPage,
+  AdminUsersPage,
+  AdminCouponsPage,
+  AdminOrdersPage,
+} from './admin';
 
 function App() {
   return (
@@ -64,7 +68,7 @@ function App() {
         <Route path="/admin/products" element={<AdminProductsPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/coupons" element={<AdminCouponsPage />} />
-        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/orders" element={<AdminOrdersPage />} />
       </Routes>
     </Router>
   );

@@ -7,8 +7,39 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const { auth } = require('../middleware/auth');
 
+/**
+ * @swagger
+ * /reviews/product/{productId}:
+ *   get:
+ *     summary: Get all reviews for a product
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [newest, helpful, rating-high, rating-low]
+ *     responses:
+ *       200:
+ *         description: List of product reviews
+ */
 // Get all reviews for a product
 router.get('/product/:productId', async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Get all reviews for a product'
   try {
     const { productId } = req.params;
     const { page = 1, limit = 10, sort = 'newest' } = req.query;
@@ -78,6 +109,8 @@ router.get('/product/:productId', async (req, res) => {
 
 // Create a new review - Only allowed if product was delivered and confirmed
 router.post('/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Create a product review'
   try {
     const { productId } = req.params;
     const { title, comment, rating, orderId } = req.body;
@@ -227,6 +260,8 @@ router.post('/:productId', auth, async (req, res) => {
 
 // Update a review
 router.put('/:reviewId', auth, async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Update a review'
   try {
     const { reviewId } = req.params;
     const { title, comment, rating, images, video } = req.body;
@@ -284,6 +319,8 @@ router.put('/:reviewId', auth, async (req, res) => {
 
 // Delete a review
 router.delete('/:reviewId', auth, async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Delete a review'
   try {
     const { reviewId } = req.params;
     const userId = req.userId;
@@ -318,6 +355,8 @@ router.delete('/:reviewId', auth, async (req, res) => {
 // Check if user can review this product (NEW ENDPOINT)
 // Returns: { canReview, orderId, message, reason }
 router.get('/check-review-eligibility/:productId', auth, async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Check if user can review product'
   try {
     const { productId } = req.params;
     const userId = req.userId;
@@ -453,6 +492,8 @@ router.get('/check-review-eligibility/:productId', auth, async (req, res) => {
 
 // Mark review as helpful
 router.post('/:reviewId/helpful', auth, async (req, res) => {
+  // #swagger.tags = ['Reviews']
+  // #swagger.summary = 'Mark review as helpful'
   try {
     const { reviewId } = req.params;
     const userId = req.userId;

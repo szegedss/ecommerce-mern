@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useCartStore } from '../store';
 import { useTranslation } from 'react-i18next';
-import ReviewForm from '../components/ReviewForm';
-import ReviewsList from '../components/ReviewsList';
+import { ReviewForm, ReviewsList } from '../components';
 
 export default function ProductDetails() {
   const { productId } = useParams();

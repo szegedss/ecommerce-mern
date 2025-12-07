@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useWishlistStore, useAuthStore } from '../store';
+import { useWishlistStore, useAuthStore } from '../../store';
 import { useNavigate } from 'react-router-dom';
 
 export default function WishlistButton({ productId, size = 'md', className = '' }) {

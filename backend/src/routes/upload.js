@@ -14,9 +14,38 @@ const {
 // PRODUCT IMAGE UPLOADS (Admin only)
 // ============================================
 
+/**
+ * @swagger
+ * /upload/product/single/{productId}:
+ *   post:
+ *     summary: Upload single product image (Admin)
+ *     tags: [Upload]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Image uploaded successfully
+ */
 // Upload single product image
 // productId can be passed as query param, body, or route param
 router.post('/product/single/:productId?', auth, admin, uploadProductImages.single('image'), async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Upload single product image (Admin)'
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -48,6 +77,8 @@ router.post('/product/single/:productId?', auth, admin, uploadProductImages.sing
 // Upload multiple product images (max 5)
 // productId can be passed as query param, body, or route param
 router.post('/product/multiple/:productId?', auth, admin, uploadProductImages.array('images', 5), async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Upload multiple product images (Admin)'
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -85,6 +116,8 @@ router.post('/product/multiple/:productId?', auth, admin, uploadProductImages.ar
 
 // Upload user avatar
 router.post('/avatar', auth, uploadAvatar.single('avatar'), async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Upload user avatar'
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -141,6 +174,8 @@ router.post('/avatar', auth, uploadAvatar.single('avatar'), async (req, res) => 
 
 // Upload review images (max 3)
 router.post('/review/images', auth, uploadReviewMedia.array('images', 3), async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Upload review images'
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({
@@ -173,6 +208,8 @@ router.post('/review/images', auth, uploadReviewMedia.array('images', 3), async 
 
 // Upload review video (max 1, max 50MB, max 60 seconds)
 router.post('/review/video', auth, uploadReviewMedia.single('video'), async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Upload review video'
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -207,6 +244,8 @@ router.post('/review/video', auth, uploadReviewMedia.single('video'), async (req
 
 // Delete single file from Cloudinary
 router.delete('/delete', auth, async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Delete uploaded file'
   try {
     const { publicId, resourceType = 'image' } = req.body;
 
@@ -238,6 +277,8 @@ router.delete('/delete', auth, async (req, res) => {
 
 // Delete multiple files from Cloudinary
 router.delete('/delete-multiple', auth, async (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Delete multiple uploaded files'
   try {
     const { publicIds, resourceType = 'image' } = req.body;
 
@@ -274,6 +315,8 @@ router.delete('/delete-multiple', auth, async (req, res) => {
 // ============================================
 
 router.get('/signature', auth, (req, res) => {
+  // #swagger.tags = ['Upload']
+  // #swagger.summary = 'Get Cloudinary signature for direct upload'
   try {
     const timestamp = Math.round(new Date().getTime() / 1000);
     const folder = req.query.folder || 'ecommerce/uploads';

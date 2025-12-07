@@ -4,8 +4,35 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_fake_
 const Order = require('../models/Order');
 const { protect } = require('../middleware/auth');
 
+/**
+ * @swagger
+ * /payments/stripe:
+ *   post:
+ *     summary: Process Stripe payment
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount:
+ *                 type: number
+ *               paymentMethodId:
+ *                 type: string
+ *               cardholderName:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Payment processed successfully
+ */
 // POST /api/payments/stripe - Process Stripe payment
 router.post('/stripe', protect, async (req, res) => {
+  // #swagger.tags = ['Payments']
+  // #swagger.summary = 'Process Stripe payment'
   try {
     const { amount, paymentMethodId, cardholderName } = req.body;
 
@@ -54,6 +81,8 @@ router.post('/stripe', protect, async (req, res) => {
 
 // Process PayPal payment
 router.post('/paypal', protect, async (req, res) => {
+  // #swagger.tags = ['Payments']
+  // #swagger.summary = 'Process PayPal payment'
   try {
     const { paypalOrderId, paypalPayerId, amount } = req.body;
 
@@ -86,6 +115,8 @@ router.post('/paypal', protect, async (req, res) => {
 
 // Process PromptPay payment
 router.post('/promptpay', protect, async (req, res) => {
+  // #swagger.tags = ['Payments']
+  // #swagger.summary = 'Process PromptPay payment'
   try {
     const { amount, phone, reference } = req.body;
 
@@ -122,6 +153,8 @@ router.post('/promptpay', protect, async (req, res) => {
 
 // Confirm payment and update order
 router.post('/confirm', protect, async (req, res) => {
+  // #swagger.tags = ['Payments']
+  // #swagger.summary = 'Confirm payment and update order'
   try {
     const { orderId, paymentMethod, paymentDetails, amount } = req.body;
 
@@ -175,6 +208,8 @@ router.post('/confirm', protect, async (req, res) => {
 
 // Get payment status
 router.get('/:orderId/status', protect, async (req, res) => {
+  // #swagger.tags = ['Payments']
+  // #swagger.summary = 'Get payment status'
   try {
     const order = await Order.findById(req.params.orderId);
 

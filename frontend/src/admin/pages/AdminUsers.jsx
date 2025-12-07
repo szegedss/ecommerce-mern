@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../admin/components/AdminLayout';
-import AdminDashboard from '../admin/components/AdminDashboard';
+import AdminLayout from '../components/AdminLayout';
+import AdminUsers from '../components/AdminUsersComponent';
 
-export default function AdminPage() {
+export default function AdminUsersPage() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +30,7 @@ export default function AdminPage() {
 
   return (
     <AdminLayout>
-      <AdminDashboard />
+      <AdminUsers />
     </AdminLayout>
   );
 }

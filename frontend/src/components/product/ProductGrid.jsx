@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '../store';
+import { useCartStore } from '../../store';
 import { useTranslation } from 'react-i18next';
-import SearchBar from './filters/SearchBar';
-import PriceRangeFilter from './filters/PriceRangeFilter';
-import RatingFilter from './filters/RatingFilter';
-import SortFilter from './filters/SortFilter';
+import SearchBar from '../common/filters/SearchBar';
+import PriceRangeFilter from '../common/filters/PriceRangeFilter';
+import RatingFilter from '../common/filters/RatingFilter';
+import SortFilter from '../common/filters/SortFilter';
 import WishlistButton from './WishlistButton';
 
 export default function ProductGrid() {

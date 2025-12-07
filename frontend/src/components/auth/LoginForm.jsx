@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { authAPI } from '../api';
-import { useAuthStore } from '../store';
-import { loginSchema } from '../utils/validationSchemas';
-import { showSuccess, showError, showWarning } from '../utils/alerts';
+import { authAPI } from '../../api';
+import { useAuthStore } from '../../store';
+import { loginSchema } from '../../utils/validationSchemas';
+import { showSuccess, showError, showWarning } from '../../utils/alerts';
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);

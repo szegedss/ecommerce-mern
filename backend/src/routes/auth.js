@@ -13,8 +13,42 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 // REGISTRATION & EMAIL VERIFICATION
 // ============================================
 
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterInput'
+ *     responses:
+ *       201:
+ *         description: User registered successfully. Verification email sent.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 requireVerification:
+ *                   type: boolean
+ *       400:
+ *         description: Validation error
+ *       409:
+ *         description: User already exists
+ */
 // Register with email verification
 router.post('/register', async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Register a new user'
+  // #swagger.description = 'Create a new user account with email verification'
   try {
     const { name, email, password } = req.body;
 
@@ -103,6 +137,8 @@ router.post('/register', async (req, res) => {
 
 // Verify email
 router.get('/verify-email/:token', async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Verify email address'
   try {
     const { token } = req.params;
 
@@ -145,6 +181,8 @@ router.get('/verify-email/:token', async (req, res) => {
 
 // Resend verification email
 router.post('/resend-verification', auth, async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Resend verification email'
   try {
     const user = await User.findById(req.userId);
 
@@ -198,7 +236,33 @@ router.post('/resend-verification', auth, async (req, res) => {
 // LOGIN
 // ============================================
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginInput'
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       401:
+ *         description: Invalid credentials
+ *       403:
+ *         description: Account not verified
+ */
 router.post('/login', async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Login user'
   try {
     const { email, password } = req.body;
 
@@ -279,6 +343,8 @@ router.post('/login', async (req, res) => {
 
 // Forgot password - send reset email
 router.post('/forgot-password', async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Request password reset'
   try {
     const { email } = req.body;
 
@@ -332,6 +398,8 @@ router.post('/forgot-password', async (req, res) => {
 
 // Reset password with token
 router.post('/reset-password/:token', async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Reset password with token'
   try {
     const { token } = req.params;
     const { password, confirmPassword } = req.body;
@@ -408,6 +476,8 @@ router.post('/reset-password/:token', async (req, res) => {
 
 // Change password (authenticated)
 router.put('/change-password', auth, async (req, res) => {
+  // #swagger.tags = ['Auth']
+  // #swagger.summary = 'Change password'
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
@@ -489,6 +559,8 @@ router.put('/change-password', auth, async (req, res) => {
 
 // Get current user profile
 router.get('/me', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Get current user profile'
   try {
     const user = await User.findById(req.userId).select('-password');
 
@@ -529,6 +601,8 @@ router.get('/me', auth, async (req, res) => {
 
 // Update user profile
 router.put('/profile', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Update user profile'
   try {
     const { name, phone } = req.body;
 
@@ -573,6 +647,8 @@ router.put('/profile', auth, async (req, res) => {
 
 // Upload avatar
 router.post('/avatar', auth, uploadAvatar.single('avatar'), async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Upload user avatar'
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -625,6 +701,8 @@ router.post('/avatar', auth, uploadAvatar.single('avatar'), async (req, res) => 
 
 // Get all addresses
 router.get('/addresses', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Get user addresses'
   try {
     const user = await User.findById(req.userId).select('addresses');
 
@@ -655,6 +733,8 @@ router.get('/addresses', auth, async (req, res) => {
 
 // Add new address
 router.post('/addresses', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Add new address'
   try {
     const { label, firstName, lastName, phone, address, city, state, postalCode, country, isDefault } = req.body;
 
@@ -723,6 +803,8 @@ router.post('/addresses', auth, async (req, res) => {
 
 // Update address
 router.put('/addresses/:addressId', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Update address'
   try {
     const { addressId } = req.params;
     const updates = req.body;
@@ -781,6 +863,8 @@ router.put('/addresses/:addressId', auth, async (req, res) => {
 
 // Delete address
 router.delete('/addresses/:addressId', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Delete address'
   try {
     const { addressId } = req.params;
 
@@ -832,6 +916,8 @@ router.delete('/addresses/:addressId', auth, async (req, res) => {
 
 // Set default address
 router.put('/addresses/:addressId/default', auth, async (req, res) => {
+  // #swagger.tags = ['User']
+  // #swagger.summary = 'Set default address'
   try {
     const { addressId } = req.params;
 
@@ -886,6 +972,8 @@ router.put('/addresses/:addressId/default', auth, async (req, res) => {
 
 // Get notifications
 router.get('/notifications', auth, async (req, res) => {
+  // #swagger.tags = ['Notifications']
+  // #swagger.summary = 'Get user notifications'
   try {
     const user = await User.findById(req.userId).select('notifications');
 
@@ -921,6 +1009,8 @@ router.get('/notifications', auth, async (req, res) => {
 
 // Mark notification as read
 router.put('/notifications/:notificationId/read', auth, async (req, res) => {
+  // #swagger.tags = ['Notifications']
+  // #swagger.summary = 'Mark notification as read'
   try {
     const { notificationId } = req.params;
 
@@ -962,6 +1052,8 @@ router.put('/notifications/:notificationId/read', auth, async (req, res) => {
 
 // Mark all notifications as read
 router.put('/notifications/read-all', auth, async (req, res) => {
+  // #swagger.tags = ['Notifications']
+  // #swagger.summary = 'Mark all notifications as read'
   try {
     const user = await User.findById(req.userId);
     if (!user) {
@@ -994,6 +1086,8 @@ router.put('/notifications/read-all', auth, async (req, res) => {
 
 // Delete notification
 router.delete('/notifications/:notificationId', auth, async (req, res) => {
+  // #swagger.tags = ['Notifications']
+  // #swagger.summary = 'Delete notification'
   try {
     const { notificationId } = req.params;
 
@@ -1038,6 +1132,8 @@ router.delete('/notifications/:notificationId', auth, async (req, res) => {
 
 // Clear all notifications
 router.delete('/notifications', auth, async (req, res) => {
+  // #swagger.tags = ['Notifications']
+  // #swagger.summary = 'Delete all notifications'
   try {
     const user = await User.findById(req.userId);
     if (!user) {

@@ -2,18 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const swaggerUi = require('swagger-ui-express');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
-const authRoutes = require('./routes/auth');
-const productRoutes = require('./routes/products');
-const orderRoutes = require('./routes/orders');
-const paymentRoutes = require('./routes/payments');
-const categoryRoutes = require('./routes/categories');
-const adminRoutes = require('./routes/admin');
-const couponRoutes = require('./routes/coupons');
-const reviewRoutes = require('./routes/reviews');
-const wishlistRoutes = require('./routes/wishlist');
-const uploadRoutes = require('./routes/upload');
+// Import logger and middleware
+const logger = require('./utils/logger');
+const {
+  morganMiddleware,
+  requestTiming,
+  errorLogger,
+  requestBodyLogger,
+} = require('./middleware/requestLogger');
+
+// Load swagger spec (auto-generated or fallback to manual)
+let swaggerSpec;
+const swaggerOutputPath = path.join(__dirname, 'config/swagger-output.json');
+if (fs.existsSync(swaggerOutputPath)) {
+  swaggerSpec = require('./config/swagger-output.json');
+  logger.info('Using auto-generated Swagger documentation');
+} else {
+  swaggerSpec = require('./config/swagger');
+  logger.info('Using manual Swagger documentation (run npm run swagger to generate)');
+}
+
+// Import API routes
+const apiRoutes = require('./routes');
 
 const app = express();
 
@@ -22,41 +37,75 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
+.then(() => logger.info('MongoDB connected successfully'))
 .catch(err => {
-  console.error('MongoDB connection error:', err.message);
+  logger.error('MongoDB connection error:', { error: err.message });
   process.exit(1);
 });
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',  // Vite frontend
+    'http://localhost:5000',  // Swagger UI
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5000',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.get('/api/health', (req, res) => {
-  res.json({ message: 'Backend is running', timestamp: new Date() });
+// Logging middleware
+app.use(morganMiddleware);
+app.use(requestTiming);
+app.use(requestBodyLogger);
+
+// Swagger documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'E-Commerce API Documentation',
+}));
+
+// Swagger JSON endpoint
+app.get('/api/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/coupons', couponRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/upload', uploadRoutes);
+// ============================================
+// API ROUTES
+// ============================================
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend is running',
+    version: '1.0.0',
+    timestamp: new Date(),
+  });
+});
+
+// API routes (organized by category)
+app.use('/api', apiRoutes);
+
+// Error logging middleware
+app.use(errorLogger);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  logger.error('Unhandled error', { error: err.message, stack: err.stack });
+  res.status(500).json({ success: false, error: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`API Documentation available at http://localhost:${PORT}/api/docs`);
 });

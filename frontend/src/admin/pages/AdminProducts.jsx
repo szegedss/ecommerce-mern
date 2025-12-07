@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import AdminLayout from '../admin/components/AdminLayout';
-import { productsAPI, uploadAPI } from '../api';
-import { showSuccess, showError, confirmDelete } from '../utils/alerts';
+import AdminLayout from '../components/AdminLayout';
+import { productsAPI, uploadAPI } from '../../api';
+import { showSuccess, showError, confirmDelete } from '../../utils/alerts';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);

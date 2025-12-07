@@ -3,8 +3,20 @@ const router = express.Router();
 const Coupon = require('../models/Coupon');
 const { protect, admin } = require('../middleware/auth');
 
+/**
+ * @swagger
+ * /coupons:
+ *   get:
+ *     summary: Get all active coupons
+ *     tags: [Coupons]
+ *     responses:
+ *       200:
+ *         description: List of active coupons
+ */
 // Get all active coupons (public, just list)
 router.get('/', async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Get all active coupons'
   try {
     const coupons = await Coupon.find({
       isActive: true,
@@ -24,8 +36,35 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /coupons/validate:
+ *   post:
+ *     summary: Validate coupon code
+ *     tags: [Coupons]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *               cartTotal:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Coupon validated successfully
+ *       404:
+ *         description: Coupon not found
+ */
 // Validate and get coupon details (for users)
 router.post('/validate', protect, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Validate coupon code'
   try {
     const { code, cartTotal } = req.body;
 
@@ -97,6 +136,8 @@ router.post('/validate', protect, async (req, res) => {
 
 // Admin: Get all coupons (with full details)
 router.get('/admin/all', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Get all coupons (Admin)'
   try {
     const coupons = await Coupon.find()
       .populate('createdBy', 'email name')
@@ -116,6 +157,8 @@ router.get('/admin/all', protect, admin, async (req, res) => {
 
 // Admin: Get single coupon
 router.get('/admin/:id', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Get coupon by ID (Admin)'
   try {
     const coupon = await Coupon.findById(req.params.id)
       .populate('createdBy', 'email name')
@@ -142,6 +185,8 @@ router.get('/admin/:id', protect, admin, async (req, res) => {
 
 // Admin: Create coupon
 router.post('/admin', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Create a new coupon (Admin)'
   try {
     const {
       code_th,
@@ -219,6 +264,8 @@ router.post('/admin', protect, admin, async (req, res) => {
 
 // Admin: Update coupon
 router.put('/admin/:id', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Update a coupon (Admin)'
   try {
     const coupon = await Coupon.findById(req.params.id);
 
@@ -280,6 +327,8 @@ router.put('/admin/:id', protect, admin, async (req, res) => {
 
 // Admin: Delete coupon
 router.delete('/admin/:id', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Delete a coupon (Admin)'
   try {
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
 
@@ -304,6 +353,8 @@ router.delete('/admin/:id', protect, admin, async (req, res) => {
 
 // User: Get their saved coupons
 router.get('/user/saved', protect, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Get user saved coupons'
   try {
     const coupons = await Coupon.find({
       'usageHistory.userId': req.userId,
@@ -324,6 +375,8 @@ router.get('/user/saved', protect, async (req, res) => {
 
 // User: Save coupon to their profile
 router.post('/user/save', protect, async (req, res) => {
+  // #swagger.tags = ['Coupons']
+  // #swagger.summary = 'Save coupon to profile'
   try {
     const { code } = req.body;
 

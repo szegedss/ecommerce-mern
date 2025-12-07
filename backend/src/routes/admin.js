@@ -6,8 +6,22 @@ const Order = require('../models/Order');
 const Category = require('../models/Category');
 const { protect, admin } = require('../middleware/auth');
 
+/**
+ * @swagger
+ * /admin/dashboard/stats:
+ *   get:
+ *     summary: Get dashboard statistics (Admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard statistics
+ */
 // Get dashboard statistics (admin only)
 router.get('/dashboard/stats', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Admin']
+  // #swagger.summary = 'Get dashboard statistics'
   try {
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
@@ -35,8 +49,31 @@ router.get('/dashboard/stats', protect, admin, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get all users (Admin)
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of users
+ */
 // Get all users (admin only)
 router.get('/users', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Admin']
+  // #swagger.summary = 'Get all users'
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -70,6 +107,8 @@ router.get('/users', protect, admin, async (req, res) => {
 
 // Update user role (admin only)
 router.put('/users/:id/role', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Admin']
+  // #swagger.summary = 'Update user role'
   try {
     const { role } = req.body;
 
@@ -108,6 +147,8 @@ router.put('/users/:id/role', protect, admin, async (req, res) => {
 
 // Delete user (admin only)
 router.delete('/users/:id', protect, admin, async (req, res) => {
+  // #swagger.tags = ['Admin']
+  // #swagger.summary = 'Delete user'
   try {
     const user = await User.findByIdAndDelete(req.params.id);
 

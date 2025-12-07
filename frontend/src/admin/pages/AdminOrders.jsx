@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AdminLayout from '../admin/components/AdminLayout';
+import AdminLayout from '../components/AdminLayout';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
