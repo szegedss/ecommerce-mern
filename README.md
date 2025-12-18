@@ -2,7 +2,7 @@
 
 ## 📝 Project Overview
 
-Pet Paradise คือ e-commerce website ที่สร้างด้วย **MERN Stack** (MongoDB, Express, React, Node.js) สำหรับการขายสินค้าสัตว์เลี้ยง
+Pet Paradise คือ e-commerce website ที่สร้างด้วย **MERN Stack** (MongoDB, Express, React, Node.js) สำหรับการขายสินค้าสัตว์เลี้ยง    
 
 ### ✨ Features
 
