@@ -1,4 +1,4 @@
-# 🐾 Pet Paradise - E-Commerce MERN Stack -  test
+# 🐾 Pet Paradise - E-Commerce MERN Stack -  test - 2
 
 ## 📝 Project Overview
 
